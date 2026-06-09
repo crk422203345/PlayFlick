@@ -10,6 +10,13 @@ export default defineConfig({
   plugins: [tailwindcss(), vue(), vueDevTools()],
   server: {
     host: '0.0.0.0',
+    proxy: {
+      '/game-api': {
+        target: 'https://g.bingo.vip',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/game-api/, ''),
+      },
+    },
   },
   preview: {
     host: '0.0.0.0',

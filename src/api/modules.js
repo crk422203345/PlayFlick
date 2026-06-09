@@ -16,6 +16,41 @@ export const homeApi = {
   getBanners(params = {}) {
     return request.get('/banners', { params })
   },
+  selectBannerList(params = { classify: 1, languageType: 'zh' }) {
+    return request.get('https://tv.bingo.vip/sqx_fast/banner/selectBannerList', { params })
+  },
+  selectCourse(params = { page: 1, limit: 3, languageType: 'zh' }) {
+    return request.get('https://tv.bingo.vip/sqx_fast/app/course/selectCourse', { params })
+  },
+  selectHotCourseRanking(
+    params = { limit: 6, page: 1, sort: 2, classifyId: '', languageType: 'zh' },
+  ) {
+    return request.get('https://tv.bingo.vip/sqx_fast/app/course/selectCourse', { params })
+  },
+  queryClassification(params = { languageType: 'zh' }) {
+    return request.get(
+      'https://tv.bingo.vip/sqx_fast/app/courseClassification/queryClassification',
+      { params },
+    )
+  },
+  selectHotGames(data = {}) {
+    const url =
+      typeof window === 'undefined'
+        ? 'https://g.bingo.vip/box/Gameindex/alltypegame'
+        : `${window.location.origin}/game-api/box/Gameindex/alltypegame`
+
+    return request.post(url, {
+      type: 'ios',
+      edition: '',
+      order: '1',
+      gametype: '全部游戏',
+      pagecode: 2,
+      key: 'XC9RdtCC',
+      appid: '2',
+      versionCode: 1,
+      ...data,
+    })
+  },
   getGamePromotion(params = {}) {
     return request.get('/promotions/game-entry', { params })
   },

@@ -4,6 +4,7 @@ import { ChevronRight, Crown, Flame, Gamepad2, Play, Trophy } from 'lucide-vue-n
 import DramaCard from '@/components/DramaCard.vue'
 import GameCard from '@/components/GameCard.vue'
 import RankingCard from '@/components/RankingCard.vue'
+import { homeApi } from '@/api/modules'
 import {
   featuredDramas,
   heroSlides,
@@ -18,14 +19,241 @@ const emit = defineEmits<{
   'navigate-games': []
 }>()
 
+interface BannerApiItem {
+  id: number
+  name?: string
+  imageUrl?: string
+  state?: number
+  url?: string
+  describes?: string | null
+  languageName?: string
+}
+
+interface CourseApiItem {
+  courseId: number
+  courseDetailsId?: number
+  title?: string
+  img?: string
+  titleImg?: string
+  classificationName?: string
+  details?: string
+  goodNum?: number
+  viewCounts?: number
+  status?: number
+  isDelete?: number
+}
+
+interface ClassificationApiItem {
+  classificationId: number
+  classificationName?: string
+}
+
+interface HotGameApiItem {
+  id: number
+  pic1?: string
+  pic4?: string
+  downloadnum?: string
+  gamename?: string
+  game_tag?: string
+  typeword?: string
+  gametype?: string
+  gametype1?: string
+  gametypes?: string[]
+}
+
+type VisualCategoryItem = (typeof visualCategories)[number] & {
+  id?: number
+}
+
+type BannerSlide = (typeof heroSlides)[number] & {
+  id?: number
+  url?: string
+}
+
 const activeHeroIndex = ref(0)
+const bannerLoading = ref(false)
+const bannerError = ref('')
+const bannerSlides = ref<BannerSlide[]>([...heroSlides])
+const featuredDramaLoading = ref(false)
+const featuredDramaError = ref('')
+const featuredDramaList = ref([...featuredDramas])
+const visualCategoryLoading = ref(false)
+const visualCategoryError = ref('')
+const visualCategoryList = ref<VisualCategoryItem[]>([...visualCategories])
+const hotRankingLoading = ref(false)
+const hotRankingError = ref('')
+const hotRankingList = ref([...rankings])
+const hotGameLoading = ref(false)
+const hotGameError = ref('')
+const hotGameList = ref([...hotGames])
 let heroTimer: number | undefined
 
-const activeHero = computed(() => heroSlides[activeHeroIndex.value] ?? heroSlides[0]!)
+const activeHero = computed(
+  () => bannerSlides.value[activeHeroIndex.value] ?? bannerSlides.value[0] ?? heroSlides[0]!,
+)
+
+const fetchBannerList = async () => {
+  bannerLoading.value = true
+  bannerError.value = ''
+
+  try {
+    const res = await homeApi.selectBannerList({ classify: 1, languageType: 'zh' })
+    const list: BannerApiItem[] = Array.isArray(res?.data) ? res.data : []
+    const enabledList = list.filter((item) => item?.state !== 0 && item?.imageUrl)
+
+    if (enabledList.length > 0) {
+      bannerSlides.value = enabledList.map((item) => ({
+        id: item.id,
+        title: item.name || '精选短剧',
+        desc: item.describes || '精彩短剧正在热播，立即开启沉浸式追剧体验。',
+        tag: item.languageName || '简体中文',
+        views: '精选推荐',
+        image: item.imageUrl || '',
+        url: item.url,
+      }))
+      activeHeroIndex.value = 0
+    }
+  } catch (error) {
+    bannerError.value = error instanceof Error ? error.message : '轮播图加载失败'
+  } finally {
+    bannerLoading.value = false
+  }
+}
+
+const fetchFeaturedDramas = async () => {
+  featuredDramaLoading.value = true
+  featuredDramaError.value = ''
+
+  try {
+    const res = await homeApi.selectCourse({ page: 1, limit: 4, languageType: 'zh' })
+    const list: CourseApiItem[] = Array.isArray(res?.data?.list) ? res.data.list : []
+    const enabledList = list.filter(
+      (item) => item?.status !== 0 && item?.isDelete !== 1 && (item.img || item.titleImg),
+    )
+
+    if (enabledList.length > 0) {
+      featuredDramaList.value = enabledList.map((item) => ({
+        title: item.title || '精选短剧',
+        type: item.classificationName || '短剧',
+        views: formatCount(item.goodNum ?? item.viewCounts ?? 0),
+        image: item.img || item.titleImg || '',
+      }))
+    }
+  } catch (error) {
+    featuredDramaError.value = error instanceof Error ? error.message : '短剧推荐加载失败'
+  } finally {
+    featuredDramaLoading.value = false
+  }
+}
+
+const formatCount = (value: number) => {
+  if (value >= 10000) return `${(value / 10000).toFixed(1)}万`
+  return `${value}`
+}
+
+const fetchVisualCategories = async () => {
+  visualCategoryLoading.value = true
+  visualCategoryError.value = ''
+
+  try {
+    const res = await homeApi.queryClassification({ languageType: 'zh' })
+    const list: ClassificationApiItem[] = Array.isArray(res?.data) ? res.data : []
+
+    if (list.length > 0) {
+      visualCategoryList.value = list.map((item, index) => ({
+        id: item.classificationId,
+        name: item.classificationName || '其他',
+        image:
+          visualCategories[index % visualCategories.length]?.image ||
+          visualCategories[0]?.image ||
+          '',
+      }))
+    }
+  } catch (error) {
+    visualCategoryError.value = error instanceof Error ? error.message : '精选分类加载失败'
+  } finally {
+    visualCategoryLoading.value = false
+  }
+}
+
+const fetchHotRankings = async () => {
+  hotRankingLoading.value = true
+  hotRankingError.value = ''
+
+  try {
+    const res = await homeApi.selectHotCourseRanking({
+      limit: 6,
+      page: 1,
+      sort: 2,
+      classifyId: '',
+      languageType: 'zh',
+    })
+    const list: CourseApiItem[] = Array.isArray(res?.data?.list) ? res.data.list : []
+    const enabledList = list.filter((item) => item?.status !== 0 && item?.isDelete !== 1)
+
+    if (enabledList.length > 0) {
+      hotRankingList.value = enabledList.slice(0, 6).map((item) => ({
+        title: item.title || '热门短剧',
+        type: item.classificationName || '短剧',
+        heat: formatCount(item.goodNum ?? item.viewCounts ?? 0),
+      }))
+    }
+  } catch (error) {
+    hotRankingError.value = error instanceof Error ? error.message : '今日热播榜加载失败'
+  } finally {
+    hotRankingLoading.value = false
+  }
+}
+
+const fetchHotGames = async () => {
+  hotGameLoading.value = true
+  hotGameError.value = ''
+
+  try {
+    const res = await homeApi.selectHotGames({
+      type: 'ios',
+      edition: '',
+      order: '1',
+      gametype: '全部游戏',
+      pagecode: 2,
+      key: 'XC9RdtCC',
+      appid: '2',
+      versionCode: 1,
+    })
+    const list: HotGameApiItem[] = Array.isArray(res?.lists) ? res.lists : []
+
+    if (list.length > 0) {
+      hotGameList.value = list.slice(0, 4).map((item) => ({
+        title: item.gamename || '热门小游戏',
+        category: item.typeword || item.gametype || item.gametypes?.join(' / ') || '小游戏',
+        players: formatCount(Number(item.downloadnum) || 0),
+        image: item.pic4 || item.pic1 || '',
+      }))
+    }
+  } catch (error) {
+    hotGameError.value = error instanceof Error ? error.message : '热门小游戏加载失败'
+  } finally {
+    hotGameLoading.value = false
+  }
+}
+
+const openVipPage = () => {
+  window.location.href = 'https://tv.bingo.vip/#/pages/login/loginPhone?index=2'
+}
+
+const openTvHome = () => {
+  window.location.href = 'https://tv.bingo.vip/#/'
+}
 
 onMounted(() => {
+  fetchBannerList()
+  fetchFeaturedDramas()
+  fetchVisualCategories()
+  fetchHotRankings()
+  fetchHotGames()
   heroTimer = window.setInterval(() => {
-    activeHeroIndex.value = (activeHeroIndex.value + 1) % heroSlides.length
+    if (bannerSlides.value.length === 0) return
+    activeHeroIndex.value = (activeHeroIndex.value + 1) % bannerSlides.value.length
   }, 4200)
 })
 
@@ -56,6 +284,12 @@ onBeforeUnmount(() => {
           >
             {{ activeHero.tag }}
           </span>
+          <span v-if="bannerLoading" class="text-xs font-semibold text-white/52"
+            >加载轮播中...</span
+          >
+          <span v-else-if="bannerError" class="text-xs font-semibold text-[#ff8bad]">{{
+            bannerError
+          }}</span>
           <span class="flex items-center gap-1 text-sm font-semibold text-white/72">
             <Flame class="h-4 w-4 text-[#ffbf47]" />
             {{ activeHero.views }}
@@ -82,7 +316,7 @@ onBeforeUnmount(() => {
         </div>
         <div class="mt-8 flex gap-2">
           <button
-            v-for="(_, index) in heroSlides"
+            v-for="(_, index) in bannerSlides"
             :key="index"
             class="h-2.5 rounded-full transition-all duration-300"
             :class="
@@ -138,6 +372,12 @@ onBeforeUnmount(() => {
     <div class="mb-6 flex items-end justify-between gap-4">
       <div>
         <p class="text-sm font-bold text-[#ff6f98]">DRAMA PICKS</p>
+        <p v-if="featuredDramaLoading" class="mt-2 text-sm font-semibold text-white/45">
+          短剧推荐加载中...
+        </p>
+        <p v-else-if="featuredDramaError" class="mt-2 text-sm font-semibold text-[#ff8bad]">
+          {{ featuredDramaError }}
+        </p>
         <h2 class="mt-2 text-2xl font-black sm:text-4xl">短剧推荐</h2>
       </div>
       <button
@@ -149,7 +389,7 @@ onBeforeUnmount(() => {
       </button>
     </div>
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      <DramaCard v-for="item in featuredDramas" :key="item.title" :item="item" />
+      <DramaCard v-for="item in featuredDramaList" :key="item.title" :item="item" />
     </div>
   </section>
 
@@ -158,10 +398,16 @@ onBeforeUnmount(() => {
       <div>
         <p class="text-sm font-bold text-[#00e0c5]">GAME HOTSPOT</p>
         <h2 class="mt-2 text-2xl font-black sm:text-4xl">热门小游戏</h2>
+        <p v-if="hotGameLoading" class="mt-2 text-sm font-semibold text-white/45">
+          热门小游戏加载中...
+        </p>
+        <p v-else-if="hotGameError" class="mt-2 text-sm font-semibold text-[#ff8bad]">
+          {{ hotGameError }}
+        </p>
       </div>
     </div>
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      <GameCard v-for="item in hotGames" :key="item.title" :item="item" />
+      <GameCard v-for="item in hotGameList" :key="item.title" :item="item" />
     </div>
   </section>
 
@@ -189,6 +435,7 @@ onBeforeUnmount(() => {
         </div>
         <button
           class="rounded-full bg-white px-7 py-3 text-sm font-black text-[#5a1838] shadow-xl transition hover:-translate-y-1"
+          @click="openVipPage"
         >
           立即开通 VIP
         </button>
@@ -197,14 +444,20 @@ onBeforeUnmount(() => {
   </section>
 
   <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
-    <div class="mb-7 flex items-center gap-3">
+    <div class="mb-7 flex flex-wrap items-center gap-3">
       <Trophy class="h-8 w-8 text-[#ffbf47]" />
       <h2 class="text-2xl font-black sm:text-4xl">今日热播榜</h2>
+      <span v-if="hotRankingLoading" class="text-sm font-semibold text-white/45"
+        >榜单加载中...</span
+      >
+      <span v-else-if="hotRankingError" class="text-sm font-semibold text-[#ff8bad]">{{
+        hotRankingError
+      }}</span>
     </div>
     <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <RankingCard
-        v-for="(item, index) in rankings"
-        :key="item.title"
+        v-for="(item, index) in hotRankingList"
+        :key="`${item.title}-${index}`"
         :item="item"
         :rank="index + 1"
       />
@@ -212,12 +465,21 @@ onBeforeUnmount(() => {
   </section>
 
   <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
-    <h2 class="mb-7 text-2xl font-black sm:text-4xl">精选分类</h2>
+    <div class="mb-7">
+      <h2 class="text-2xl font-black sm:text-4xl">精选分类</h2>
+      <p v-if="visualCategoryLoading" class="mt-2 text-sm font-semibold text-white/45">
+        精选分类加载中...
+      </p>
+      <p v-else-if="visualCategoryError" class="mt-2 text-sm font-semibold text-[#ff8bad]">
+        {{ visualCategoryError }}
+      </p>
+    </div>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
       <button
-        v-for="item in visualCategories"
-        :key="item.name"
+        v-for="item in visualCategoryList"
+        :key="item.id ?? item.name"
         class="group relative aspect-[3/5] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.05] shadow-xl shadow-black/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+        @click="openTvHome"
       >
         <img
           :src="item.image"
