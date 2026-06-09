@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Play, Search, UserRound } from 'lucide-vue-next'
+import { Play, Search } from 'lucide-vue-next'
 import type { NavItem } from '@/data/playflick'
 
 defineProps<{
@@ -53,7 +53,7 @@ const emit = defineEmits<{
       </nav>
 
       <div
-        class="ml-auto hidden min-w-[220px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2.5 text-white/55 shadow-inner shadow-white/5 backdrop-blur-xl md:flex"
+        class="ml-auto hidden w-[300px] max-w-[34vw] items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2.5 text-white/55 shadow-inner shadow-white/5 backdrop-blur-xl md:flex"
       >
         <Search class="h-4 w-4 text-[#ff6f98]" />
         <input
@@ -61,18 +61,6 @@ const emit = defineEmits<{
           placeholder="搜索短剧 / 小游戏"
         />
       </div>
-
-      <button
-        class="hidden items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/25 hover:text-white sm:flex"
-      >
-        <UserRound class="h-4 w-4" />
-        登录
-      </button>
-      <button
-        class="rounded-full bg-[#ff3366] px-4 py-2.5 text-sm font-bold text-white shadow-[0_0_28px_rgba(255,51,102,0.42)] transition hover:-translate-y-0.5 hover:bg-[#ff4777] sm:px-5"
-      >
-        注册
-      </button>
     </div>
 
     <div class="scrollbar-none flex gap-2 overflow-x-auto px-4 pb-4 lg:hidden">

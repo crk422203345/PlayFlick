@@ -35,7 +35,11 @@ const switchNav = (item: NavItem) => {
     <AppHeader :nav-items="navItems" :active-nav="activeNav" @change-nav="switchNav" />
 
     <main class="relative z-10">
-      <HomePage v-if="activeNav === '首页'" />
+      <HomePage
+        v-if="activeNav === '首页'"
+        @navigate-dramas="switchNav('短剧专区')"
+        @navigate-games="switchNav('小游戏专区')"
+      />
       <DramaPage v-else-if="activeNav === '短剧专区'" />
       <GamesPage v-else-if="activeNav === '小游戏专区'" />
       <AboutPage v-else />

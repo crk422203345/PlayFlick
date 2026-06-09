@@ -14,6 +14,11 @@ import {
   visualCategories,
 } from '@/data/playflick'
 
+const emit = defineEmits<{
+  'navigate-dramas': []
+  'navigate-games': []
+}>()
+
 const activeHeroIndex = ref(0)
 let heroTimer: number | undefined
 
@@ -120,6 +125,7 @@ onBeforeUnmount(() => {
           </p>
           <button
             class="mt-7 flex items-center gap-2 rounded-full bg-[#00bfa5] px-6 py-3 text-sm font-black text-[#031b20] shadow-[0_0_30px_rgba(0,191,165,0.42)] transition hover:-translate-y-1 hover:bg-[#12d8be]"
+            @click="emit('navigate-games')"
           >
             进入游戏大厅
             <ChevronRight class="h-4 w-4" />
@@ -137,6 +143,7 @@ onBeforeUnmount(() => {
       </div>
       <button
         class="hidden items-center gap-1 text-sm font-bold text-white/60 transition hover:text-white sm:flex"
+        @click="emit('navigate-dramas')"
       >
         查看全部
         <ChevronRight class="h-4 w-4" />
