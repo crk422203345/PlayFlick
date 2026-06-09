@@ -9,3 +9,12 @@ body {
   min-width: 320px;
   background: #0b0d26;
 }
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
