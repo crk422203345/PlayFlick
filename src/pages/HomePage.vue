@@ -9,7 +9,6 @@ import {
   heroSlides,
   hotGames,
   operationCards,
-  partners,
   rankings,
   visualCategories,
 } from '@/data/playflick'
@@ -251,22 +250,6 @@ onBeforeUnmount(() => {
         <h3 class="text-xl font-black">{{ item.title }}</h3>
         <p class="mt-3 text-sm leading-7 text-white/62">{{ item.desc }}</p>
       </article>
-    </div>
-  </section>
-
-  <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-    <div class="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md sm:p-8">
-      <p class="text-center text-sm font-bold text-white/48">合作伙伴</p>
-      <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <div
-          v-for="partner in partners"
-          :key="partner.name"
-          class="flex h-16 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] text-sm font-black text-white/68 transition hover:bg-white/[0.08] hover:text-white"
-        >
-          <component :is="partner.icon" class="h-4 w-4" />
-          {{ partner.name }}
-        </div>
-      </div>
     </div>
   </section>
 </template>
