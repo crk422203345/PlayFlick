@@ -17,9 +17,11 @@ import {
   Rocket,
   Search,
   ShieldCheck,
+  Smartphone,
   Sparkles,
   Star,
   Trophy,
+  Tv,
   UserRound,
   Users,
   Zap,
@@ -298,7 +300,14 @@ const operationCards = [
   },
 ]
 
-const partners = ['腾讯视频', '爱奇艺', '抖音', 'B站', '优酷', '快手']
+const partners = [
+  { name: '腾讯视频', icon: Tv },
+  { name: '爱奇艺', icon: Film },
+  { name: '抖音', icon: Smartphone },
+  { name: 'B站', icon: Tv },
+  { name: '优酷', icon: Film },
+  { name: '快手', icon: Smartphone },
+]
 
 const coreValues = [
   { title: '海量内容', desc: '短剧、小游戏与互动娱乐持续上新。', icon: Film },
@@ -622,9 +631,10 @@ onBeforeUnmount(() => {
           <div class="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md sm:p-8">
             <p class="text-center text-sm font-bold text-white/48">合作伙伴</p>
             <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              <div v-for="partner in partners" :key="partner"
-                class="grid h-16 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-sm font-black text-white/68">
-                {{ partner }}
+              <div v-for="partner in partners" :key="partner.name"
+                class="flex h-16 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] text-sm font-black text-white/68 transition hover:bg-white/[0.08] hover:text-white">
+                <component :is="partner.icon" class="h-4 w-4" />
+                {{ partner.name }}
               </div>
             </div>
           </div>
