@@ -222,14 +222,7 @@ const allGames = [
     players: '11.6万',
     image:
       'https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=800&q=82',
-  },
-  {
-    title: '宝石合成师',
-    category: '消除合成',
-    players: '26.5万',
-    image:
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=800&q=82',
-  },
+  }
 ]
 
 const rankings = [
@@ -343,95 +336,63 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    class="min-h-screen overflow-hidden bg-[linear-gradient(135deg,#0b0d26_0%,#10133a_46%,#0e1138_100%)] text-white"
-  >
+  <div class="min-h-screen overflow-hidden bg-[linear-gradient(135deg,#0b0d26_0%,#10133a_46%,#0e1138_100%)] text-white">
     <div class="pointer-events-none fixed inset-0 opacity-70">
-      <div
-        class="absolute left-[-10%] top-[-15%] h-[420px] w-[420px] rounded-full bg-[#ff3366]/18 blur-[120px]"
-      ></div>
-      <div
-        class="absolute bottom-[12%] right-[-8%] h-[360px] w-[360px] rounded-full bg-[#00bfa5]/14 blur-[110px]"
-      ></div>
-      <div
-        class="absolute left-[35%] top-[28%] h-64 w-64 rounded-full bg-[#6d5dfc]/10 blur-[100px]"
-      ></div>
+      <div class="absolute left-[-10%] top-[-15%] h-[420px] w-[420px] rounded-full bg-[#ff3366]/18 blur-[120px]"></div>
+      <div class="absolute bottom-[12%] right-[-8%] h-[360px] w-[360px] rounded-full bg-[#00bfa5]/14 blur-[110px]">
+      </div>
+      <div class="absolute left-[35%] top-[28%] h-64 w-64 rounded-full bg-[#6d5dfc]/10 blur-[100px]"></div>
     </div>
 
     <header class="sticky top-0 z-50 border-b border-white/10 bg-[#0b0d26]/72 backdrop-blur-2xl">
       <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <button
-          class="group flex shrink-0 items-center gap-3"
-          @click="switchNav('首页')"
-          aria-label="返回首页"
-        >
+        <button class="group flex shrink-0 items-center gap-3" @click="switchNav('首页')" aria-label="返回首页">
           <span
-            class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[#ff3366] to-[#7c4dff] shadow-[0_0_32px_rgba(255,51,102,0.38)]"
-          >
+            class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[#ff3366] to-[#7c4dff] shadow-[0_0_32px_rgba(255,51,102,0.38)]">
             <Play class="h-5 w-5 fill-white text-white" />
           </span>
           <span class="text-xl font-black tracking-normal sm:text-2xl">PlayFlick</span>
         </button>
 
         <nav class="hidden flex-1 justify-center lg:flex">
-          <div
-            class="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1"
-          >
-            <button
-              v-for="item in navItems"
-              :key="item"
+          <div class="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
+            <button v-for="item in navItems" :key="item"
               class="relative rounded-full px-5 py-2.5 text-sm font-semibold text-white/68 transition-all duration-300"
-              :class="
-                activeNav === item
-                  ? 'bg-white/[0.08] text-white shadow-[0_0_26px_rgba(255,51,102,0.22)]'
-                  : 'hover:text-white'
-              "
-              @click="switchNav(item)"
-            >
+              :class="activeNav === item
+                ? 'bg-white/[0.08] text-white shadow-[0_0_26px_rgba(255,51,102,0.22)]'
+                : 'hover:text-white'
+                " @click="switchNav(item)">
               {{ item }}
-              <span
-                class="absolute inset-x-5 -bottom-1 h-0.5 rounded-full bg-[#ff3366] transition-all duration-300"
-                :class="activeNav === item ? 'opacity-100 shadow-[0_0_16px_#ff3366]' : 'opacity-0'"
-              ></span>
+              <span class="absolute inset-x-5 -bottom-1 h-0.5 rounded-full bg-[#ff3366] transition-all duration-300"
+                :class="activeNav === item ? 'opacity-100 shadow-[0_0_16px_#ff3366]' : 'opacity-0'"></span>
             </button>
           </div>
         </nav>
 
         <div
-          class="ml-auto hidden min-w-[220px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2.5 text-white/55 shadow-inner shadow-white/5 backdrop-blur-xl md:flex"
-        >
+          class="ml-auto hidden min-w-[220px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2.5 text-white/55 shadow-inner shadow-white/5 backdrop-blur-xl md:flex">
           <Search class="h-4 w-4 text-[#ff6f98]" />
-          <input
-            class="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/40"
-            placeholder="搜索短剧 / 小游戏"
-          />
+          <input class="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/40"
+            placeholder="搜索短剧 / 小游戏" />
         </div>
 
         <button
-          class="hidden items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/25 hover:text-white sm:flex"
-        >
+          class="hidden items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/25 hover:text-white sm:flex">
           <UserRound class="h-4 w-4" />
           登录
         </button>
         <button
-          class="rounded-full bg-[#ff3366] px-4 py-2.5 text-sm font-bold text-white shadow-[0_0_28px_rgba(255,51,102,0.42)] transition hover:-translate-y-0.5 hover:bg-[#ff4777] sm:px-5"
-        >
+          class="rounded-full bg-[#ff3366] px-4 py-2.5 text-sm font-bold text-white shadow-[0_0_28px_rgba(255,51,102,0.42)] transition hover:-translate-y-0.5 hover:bg-[#ff4777] sm:px-5">
           注册
         </button>
       </div>
 
       <div class="scrollbar-none flex gap-2 overflow-x-auto px-4 pb-4 lg:hidden">
-        <button
-          v-for="item in navItems"
-          :key="item"
-          class="whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition"
-          :class="
-            activeNav === item
-              ? 'border-[#ff3366] bg-[#ff3366]/18 text-white shadow-[0_0_18px_rgba(255,51,102,0.28)]'
-              : 'border-white/10 bg-white/[0.04] text-white/60'
-          "
-          @click="switchNav(item)"
-        >
+        <button v-for="item in navItems" :key="item"
+          class="whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition" :class="activeNav === item
+            ? 'border-[#ff3366] bg-[#ff3366]/18 text-white shadow-[0_0_18px_rgba(255,51,102,0.28)]'
+            : 'border-white/10 bg-white/[0.04] text-white/60'
+            " @click="switchNav(item)">
           {{ item }}
         </button>
       </div>
@@ -439,27 +400,18 @@ onBeforeUnmount(() => {
 
     <main class="relative z-10">
       <template v-if="activeNav === '首页'">
-        <section
-          class="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-6 lg:grid-cols-[1.55fr_0.85fr] lg:px-8 lg:py-10"
-        >
+        <section class="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-6 lg:grid-cols-[1.55fr_0.85fr] lg:px-8 lg:py-10">
           <article
-            class="group relative min-h-[430px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] shadow-2xl shadow-black/30"
-          >
-            <img
-              :src="activeHero.image"
-              :alt="activeHero.title"
-              class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
-            />
+            class="group relative min-h-[430px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] shadow-2xl shadow-black/30">
+            <img :src="activeHero.image" :alt="activeHero.title"
+              class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
             <div
-              class="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,32,0.94)_0%,rgba(8,10,32,0.6)_48%,rgba(8,10,32,0.2)_100%)]"
-            ></div>
-            <div
-              class="relative flex h-full min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10"
-            >
+              class="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,32,0.94)_0%,rgba(8,10,32,0.6)_48%,rgba(8,10,32,0.2)_100%)]">
+            </div>
+            <div class="relative flex h-full min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10">
               <div class="mb-4 flex flex-wrap items-center gap-3">
                 <span
-                  class="rounded-full bg-[#ff3366] px-3 py-1 text-xs font-black text-white shadow-[0_0_20px_rgba(255,51,102,0.5)]"
-                >
+                  class="rounded-full bg-[#ff3366] px-3 py-1 text-xs font-black text-white shadow-[0_0_20px_rgba(255,51,102,0.5)]">
                   {{ activeHero.tag }}
                 </span>
                 <span class="flex items-center gap-1 text-sm font-semibold text-white/72">
@@ -475,50 +427,34 @@ onBeforeUnmount(() => {
               </p>
               <div class="mt-7 flex flex-wrap items-center gap-3">
                 <button
-                  class="flex items-center gap-2 rounded-full bg-[#ff3366] px-6 py-3 text-sm font-black text-white shadow-[0_0_30px_rgba(255,51,102,0.38)] transition hover:-translate-y-1"
-                >
+                  class="flex items-center gap-2 rounded-full bg-[#ff3366] px-6 py-3 text-sm font-black text-white shadow-[0_0_30px_rgba(255,51,102,0.38)] transition hover:-translate-y-1">
                   <Play class="h-4 w-4 fill-white" />
                   立即观看
                 </button>
                 <button
-                  class="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-bold text-white/82 backdrop-blur-md transition hover:border-white/30 hover:text-white"
-                >
+                  class="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-bold text-white/82 backdrop-blur-md transition hover:border-white/30 hover:text-white">
                   加入片单
                 </button>
               </div>
               <div class="mt-8 flex gap-2">
-                <button
-                  v-for="(_, index) in heroSlides"
-                  :key="index"
-                  class="h-2.5 rounded-full transition-all duration-300"
-                  :class="
-                    activeHeroIndex === index
-                      ? 'w-9 bg-[#ff3366] shadow-[0_0_14px_#ff3366]'
-                      : 'w-2.5 bg-white/35'
-                  "
-                  :aria-label="`切换到第 ${index + 1} 张 Banner`"
-                  @click="activeHeroIndex = index"
-                ></button>
+                <button v-for="(_, index) in heroSlides" :key="index"
+                  class="h-2.5 rounded-full transition-all duration-300" :class="activeHeroIndex === index
+                    ? 'w-9 bg-[#ff3366] shadow-[0_0_14px_#ff3366]'
+                    : 'w-2.5 bg-white/35'
+                    " :aria-label="`切换到第 ${index + 1} 张 Banner`" @click="activeHeroIndex = index"></button>
               </div>
             </div>
           </article>
 
           <article
-            class="relative min-h-[360px] overflow-hidden rounded-[28px] border border-[#00bfa5]/30 bg-[#071f2e]/70 p-6 shadow-[0_0_45px_rgba(0,191,165,0.16)] backdrop-blur-md sm:p-8 lg:min-h-full"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1560253023-3ec5d502959f?auto=format&fit=crop&w=900&q=86"
-              alt="小游戏宣传"
-              class="absolute inset-0 h-full w-full object-cover opacity-54"
-            />
-            <div
-              class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,12,31,0.22),rgba(5,12,31,0.9))]"
-            ></div>
+            class="relative min-h-[360px] overflow-hidden rounded-[28px] border border-[#00bfa5]/30 bg-[#071f2e]/70 p-6 shadow-[0_0_45px_rgba(0,191,165,0.16)] backdrop-blur-md sm:p-8 lg:min-h-full">
+            <img src="https://images.unsplash.com/photo-1560253023-3ec5d502959f?auto=format&fit=crop&w=900&q=86"
+              alt="小游戏宣传" class="absolute inset-0 h-full w-full object-cover opacity-54" />
+            <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,12,31,0.22),rgba(5,12,31,0.9))]"></div>
             <div class="relative flex h-full min-h-[320px] flex-col justify-between">
               <div class="flex justify-end">
                 <span
-                  class="rounded-full border border-[#00bfa5]/40 bg-[#00bfa5]/15 px-3 py-1 text-xs font-black text-[#8fffee]"
-                >
+                  class="rounded-full border border-[#00bfa5]/40 bg-[#00bfa5]/15 px-3 py-1 text-xs font-black text-[#8fffee]">
                   今日礼包已刷新
                 </span>
               </div>
@@ -531,8 +467,7 @@ onBeforeUnmount(() => {
                   消除、竞速、塔防、冒险随时切换，低门槛高爽感，追剧间隙也能赢奖励。
                 </p>
                 <button
-                  class="mt-7 flex items-center gap-2 rounded-full bg-[#00bfa5] px-6 py-3 text-sm font-black text-[#031b20] shadow-[0_0_30px_rgba(0,191,165,0.42)] transition hover:-translate-y-1 hover:bg-[#12d8be]"
-                >
+                  class="mt-7 flex items-center gap-2 rounded-full bg-[#00bfa5] px-6 py-3 text-sm font-black text-[#031b20] shadow-[0_0_30px_rgba(0,191,165,0.42)] transition hover:-translate-y-1 hover:bg-[#12d8be]">
                   进入游戏大厅
                   <ChevronRight class="h-4 w-4" />
                 </button>
@@ -548,31 +483,20 @@ onBeforeUnmount(() => {
               <h2 class="mt-2 text-2xl font-black sm:text-4xl">短剧推荐</h2>
             </div>
             <button
-              class="hidden items-center gap-1 text-sm font-bold text-white/60 transition hover:text-white sm:flex"
-            >
+              class="hidden items-center gap-1 text-sm font-bold text-white/60 transition hover:text-white sm:flex">
               查看全部
               <ChevronRight class="h-4 w-4" />
             </button>
           </div>
           <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <article
-              v-for="item in featuredDramas"
-              :key="item.title"
-              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#ff3366]/15"
-            >
+            <article v-for="item in featuredDramas" :key="item.title"
+              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#ff3366]/15">
               <div class="relative aspect-[3/4] overflow-hidden">
-                <img
-                  :src="item.image"
-                  :alt="item.title"
-                  class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                />
-                <div
-                  class="absolute inset-0 bg-gradient-to-t from-[#07091f] via-transparent to-transparent"
-                ></div>
-                <span
-                  class="absolute left-4 top-4 rounded-full bg-[#ff3366]/90 px-3 py-1 text-xs font-black"
-                  >{{ item.type }}</span
-                >
+                <img :src="item.image" :alt="item.title"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#07091f] via-transparent to-transparent"></div>
+                <span class="absolute left-4 top-4 rounded-full bg-[#ff3366]/90 px-3 py-1 text-xs font-black">{{
+                  item.type }}</span>
               </div>
               <div class="p-4">
                 <h3 class="line-clamp-1 text-lg font-black">{{ item.title }}</h3>
@@ -593,31 +517,21 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <article
-              v-for="item in hotGames"
-              :key="item.title"
-              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00bfa5]/15"
-            >
+            <article v-for="item in hotGames" :key="item.title"
+              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00bfa5]/15">
               <div class="relative aspect-[4/3] overflow-hidden">
-                <img
-                  :src="item.image"
-                  :alt="item.title"
-                  class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                />
-                <div
-                  class="absolute inset-0 bg-gradient-to-t from-[#071f2e] via-transparent to-transparent"
-                ></div>
+                <img :src="item.image" :alt="item.title"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#071f2e] via-transparent to-transparent"></div>
                 <span
-                  class="absolute left-4 top-4 rounded-full bg-[#00bfa5]/90 px-3 py-1 text-xs font-black text-[#041b20]"
-                  >{{ item.category }}</span
-                >
+                  class="absolute left-4 top-4 rounded-full bg-[#00bfa5]/90 px-3 py-1 text-xs font-black text-[#041b20]">{{
+                    item.category }}</span>
               </div>
               <div class="p-4">
                 <h3 class="line-clamp-1 text-lg font-black">{{ item.title }}</h3>
                 <p class="mt-2 text-sm text-white/58">{{ item.players }} 人在玩</p>
                 <button
-                  class="mt-4 w-full rounded-2xl bg-[#00bfa5] py-3 text-sm font-black text-[#031b20] transition hover:bg-[#13ddc1]"
-                >
+                  class="mt-4 w-full rounded-2xl bg-[#00bfa5] py-3 text-sm font-black text-[#031b20] transition hover:bg-[#13ddc1]">
                   进入游戏
                 </button>
               </div>
@@ -627,14 +541,9 @@ onBeforeUnmount(() => {
 
         <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
           <div
-            class="relative overflow-hidden rounded-[28px] border border-[#ffcf70]/25 bg-[linear-gradient(110deg,#2b1b40_0%,#6f244d_44%,#b8872b_100%)] p-6 shadow-[0_0_60px_rgba(255,51,102,0.18)] sm:p-9"
-          >
-            <div
-              class="absolute right-8 top-[-40px] h-32 w-32 rounded-full border border-[#ffd37a]/30"
-            ></div>
-            <div
-              class="absolute bottom-[-55px] right-28 h-40 w-40 rounded-full bg-[#ff3366]/24 blur-3xl"
-            ></div>
+            class="relative overflow-hidden rounded-[28px] border border-[#ffcf70]/25 bg-[linear-gradient(110deg,#2b1b40_0%,#6f244d_44%,#b8872b_100%)] p-6 shadow-[0_0_60px_rgba(255,51,102,0.18)] sm:p-9">
+            <div class="absolute right-8 top-[-40px] h-32 w-32 rounded-full border border-[#ffd37a]/30"></div>
+            <div class="absolute bottom-[-55px] right-28 h-40 w-40 rounded-full bg-[#ff3366]/24 blur-3xl"></div>
             <div class="relative grid gap-7 lg:grid-cols-[1fr_auto] lg:items-center">
               <div class="flex gap-4">
                 <div class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#ffcf70]/18">
@@ -648,8 +557,7 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <button
-                class="rounded-full bg-white px-7 py-3 text-sm font-black text-[#5a1838] shadow-xl transition hover:-translate-y-1"
-              >
+                class="rounded-full bg-white px-7 py-3 text-sm font-black text-[#5a1838] shadow-xl transition hover:-translate-y-1">
                 立即开通 VIP
               </button>
             </div>
@@ -662,12 +570,9 @@ onBeforeUnmount(() => {
             <h2 class="text-2xl font-black sm:text-4xl">今日热播榜</h2>
           </div>
           <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <article
-              v-for="(item, index) in rankings"
-              :key="item.title"
-              class="relative min-h-32 overflow-visible rounded-3xl border border-white/10 bg-white/[0.06] p-5 pl-20 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:border-[#ff3366]/40 hover:shadow-2xl"
-            >
-              <span class="rank-number absolute -left-2 top-2 text-8xl font-black leading-none">{{
+            <article v-for="(item, index) in rankings" :key="item.title"
+              class="relative min-h-32 overflow-visible rounded-3xl border border-white/10 bg-white/[0.06] p-5 pl-20 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:border-[#ff3366]/40 hover:shadow-2xl">
+              <span class="rank-number absolute left-2 top-2 text-8xl font-black leading-none">{{
                 index + 1
               }}</span>
               <div class="relative">
@@ -687,19 +592,11 @@ onBeforeUnmount(() => {
         <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
           <h2 class="mb-7 text-2xl font-black sm:text-4xl">精选分类</h2>
           <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
-            <button
-              v-for="item in visualCategories"
-              :key="item.name"
-              class="group relative aspect-[3/5] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.05] shadow-xl shadow-black/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-            >
-              <img
-                :src="item.image"
-                :alt="item.name"
-                class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-              />
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-[#07091f] via-[#07091f]/10 to-transparent"
-              ></div>
+            <button v-for="item in visualCategories" :key="item.name"
+              class="group relative aspect-[3/5] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.05] shadow-xl shadow-black/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+              <img :src="item.image" :alt="item.name"
+                class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-gradient-to-t from-[#07091f] via-[#07091f]/10 to-transparent"></div>
               <span class="absolute inset-x-0 bottom-5 text-center text-xl font-black">{{
                 item.name
               }}</span>
@@ -709,15 +606,10 @@ onBeforeUnmount(() => {
 
         <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
           <div class="grid gap-5 md:grid-cols-3">
-            <article
-              v-for="item in operationCards"
-              :key="item.title"
-              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-            >
-              <div
-                :class="item.color"
-                class="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br shadow-lg"
-              >
+            <article v-for="item in operationCards" :key="item.title"
+              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+              <div :class="item.color"
+                class="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br shadow-lg">
                 <component :is="item.icon" class="h-7 w-7 text-white" />
               </div>
               <h3 class="text-xl font-black">{{ item.title }}</h3>
@@ -727,16 +619,11 @@ onBeforeUnmount(() => {
         </section>
 
         <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div
-            class="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md sm:p-8"
-          >
+          <div class="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-md sm:p-8">
             <p class="text-center text-sm font-bold text-white/48">合作伙伴</p>
             <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              <div
-                v-for="partner in partners"
-                :key="partner"
-                class="grid h-16 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-sm font-black text-white/68"
-              >
+              <div v-for="partner in partners" :key="partner"
+                class="grid h-16 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-sm font-black text-white/68">
                 {{ partner }}
               </div>
             </div>
@@ -747,9 +634,7 @@ onBeforeUnmount(() => {
       <template v-else-if="activeNav === '短剧专区'">
         <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div class="mb-8 max-w-3xl">
-            <div
-              class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16"
-            >
+            <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16">
               <Clapperboard class="h-8 w-8 text-[#ff6f98]" />
             </div>
             <h1 class="text-4xl font-black leading-tight sm:text-6xl">短剧专区</h1>
@@ -759,39 +644,25 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="scrollbar-none mb-8 flex gap-3 overflow-x-auto">
-            <button
-              v-for="category in dramaCategories"
-              :key="category"
-              class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition"
-              :class="
-                activeDramaCategory === category
-                  ? 'border-[#ff3366] bg-[#ff3366] text-white shadow-[0_0_22px_rgba(255,51,102,0.36)]'
-                  : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
-              "
-              @click="activeDramaCategory = category"
-            >
+            <button v-for="category in dramaCategories" :key="category"
+              class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition" :class="activeDramaCategory === category
+                ? 'border-[#ff3366] bg-[#ff3366] text-white shadow-[0_0_22px_rgba(255,51,102,0.36)]'
+                : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
+                " @click="activeDramaCategory = category">
               {{ category }}
             </button>
           </div>
 
           <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-            <article
-              v-for="item in filteredDramas"
-              :key="item.title"
-              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#ff3366]/15"
-            >
+            <article v-for="item in filteredDramas" :key="item.title"
+              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#ff3366]/15">
               <div class="relative aspect-[3/4] overflow-hidden">
-                <img
-                  :src="item.image"
-                  :alt="item.title"
-                  class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                />
+                <img :src="item.image" :alt="item.title"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
                 <button
-                  class="absolute inset-0 grid place-items-center bg-[#07091f]/0 opacity-0 transition group-hover:bg-[#07091f]/30 group-hover:opacity-100"
-                >
+                  class="absolute inset-0 grid place-items-center bg-[#07091f]/0 opacity-0 transition group-hover:bg-[#07091f]/30 group-hover:opacity-100">
                   <span
-                    class="grid h-14 w-14 place-items-center rounded-full bg-[#ff3366] shadow-[0_0_28px_rgba(255,51,102,0.45)]"
-                  >
+                    class="grid h-14 w-14 place-items-center rounded-full bg-[#ff3366] shadow-[0_0_28px_rgba(255,51,102,0.45)]">
                     <Play class="h-6 w-6 fill-white text-white" />
                   </span>
                 </button>
@@ -803,9 +674,7 @@ onBeforeUnmount(() => {
                     <Play class="h-3.5 w-3.5 fill-[#ff6f98] text-[#ff6f98]" />
                     {{ item.views }}
                   </span>
-                  <span
-                    class="rounded-full bg-[#ff3366]/15 px-2.5 py-1 text-xs font-bold text-[#ff8bad]"
-                  >
+                  <span class="rounded-full bg-[#ff3366]/15 px-2.5 py-1 text-xs font-bold text-[#ff8bad]">
                     {{ item.type }}
                   </span>
                 </div>
@@ -819,9 +688,7 @@ onBeforeUnmount(() => {
         <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div class="mb-8 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
             <div class="max-w-3xl">
-              <div
-                class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#00bfa5]/16"
-              >
+              <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#00bfa5]/16">
                 <Joystick class="h-8 w-8 text-[#00e0c5]" />
               </div>
               <h1 class="text-4xl font-black leading-tight sm:text-6xl">小游戏专区</h1>
@@ -829,48 +696,31 @@ onBeforeUnmount(() => {
                 免下载、低等待、强反馈。把追剧后的三分钟，变成赢奖励的高光时刻。
               </p>
             </div>
-            <div
-              class="rounded-3xl border border-[#00bfa5]/25 bg-[#00bfa5]/10 p-5 text-sm text-[#9fffee]"
-            >
+            <div class="rounded-3xl border border-[#00bfa5]/25 bg-[#00bfa5]/10 p-5 text-sm text-[#9fffee]">
               <p class="font-black">今日在线 86.4 万</p>
               <p class="mt-2 text-[#9fffee]/70">礼包库存每 2 小时刷新</p>
             </div>
           </div>
 
           <div class="scrollbar-none mb-8 flex gap-3 overflow-x-auto">
-            <button
-              v-for="category in gameCategories"
-              :key="category"
-              class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition"
-              :class="
-                activeGameCategory === category
-                  ? 'border-[#00bfa5] bg-[#00bfa5] text-[#031b20] shadow-[0_0_22px_rgba(0,191,165,0.36)]'
-                  : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
-              "
-              @click="activeGameCategory = category"
-            >
+            <button v-for="category in gameCategories" :key="category"
+              class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition" :class="activeGameCategory === category
+                ? 'border-[#00bfa5] bg-[#00bfa5] text-[#031b20] shadow-[0_0_22px_rgba(0,191,165,0.36)]'
+                : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
+                " @click="activeGameCategory = category">
               {{ category }}
             </button>
           </div>
 
           <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <article
-              v-for="item in filteredGames"
-              :key="item.title"
-              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00bfa5]/15"
-            >
+            <article v-for="item in filteredGames" :key="item.title"
+              class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#00bfa5]/15">
               <div class="relative aspect-[4/3] overflow-hidden">
-                <img
-                  :src="item.image"
-                  :alt="item.title"
-                  class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                />
-                <div
-                  class="absolute inset-0 bg-gradient-to-t from-[#061821] via-transparent to-transparent"
-                ></div>
+                <img :src="item.image" :alt="item.title"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#061821] via-transparent to-transparent"></div>
                 <span
-                  class="absolute left-4 top-4 rounded-full bg-[#00bfa5]/90 px-3 py-1 text-xs font-black text-[#031b20]"
-                >
+                  class="absolute left-4 top-4 rounded-full bg-[#00bfa5]/90 px-3 py-1 text-xs font-black text-[#031b20]">
                   {{ item.category }}
                 </span>
               </div>
@@ -881,8 +731,7 @@ onBeforeUnmount(() => {
                   {{ item.players }} 玩家在线
                 </p>
                 <button
-                  class="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#00bfa5] py-3 text-sm font-black text-[#031b20] transition hover:-translate-y-0.5 hover:bg-[#13ddc1]"
-                >
+                  class="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#00bfa5] py-3 text-sm font-black text-[#031b20] transition hover:-translate-y-0.5 hover:bg-[#13ddc1]">
                   <Zap class="h-4 w-4 fill-[#031b20]" />
                   立即畅玩
                 </button>
@@ -894,12 +743,9 @@ onBeforeUnmount(() => {
 
       <template v-else>
         <section
-          class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-8 lg:py-16"
-        >
+          class="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-8 lg:py-16">
           <div>
-            <div
-              class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16"
-            >
+            <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16">
               <Gem class="h-8 w-8 text-[#ff6f98]" />
             </div>
             <h1 class="max-w-3xl text-4xl font-black leading-tight sm:text-6xl">
@@ -911,13 +757,11 @@ onBeforeUnmount(() => {
             </p>
             <div class="mt-8 flex flex-wrap gap-3">
               <button
-                class="rounded-full bg-[#ff3366] px-6 py-3 text-sm font-black text-white shadow-[0_0_30px_rgba(255,51,102,0.38)]"
-              >
+                class="rounded-full bg-[#ff3366] px-6 py-3 text-sm font-black text-white shadow-[0_0_30px_rgba(255,51,102,0.38)]">
                 了解品牌故事
               </button>
               <button
-                class="rounded-full border border-white/12 bg-white/[0.05] px-6 py-3 text-sm font-black text-white/72"
-              >
+                class="rounded-full border border-white/12 bg-white/[0.05] px-6 py-3 text-sm font-black text-white/72">
                 商务合作
               </button>
             </div>
@@ -926,34 +770,27 @@ onBeforeUnmount(() => {
           <div class="relative min-h-[430px]">
             <div class="brand-orbit absolute inset-8 rounded-full border border-white/10"></div>
             <div
-              class="absolute left-8 top-8 rounded-[32px] border border-[#ff3366]/25 bg-[#ff3366]/12 p-5 shadow-[0_0_45px_rgba(255,51,102,0.18)] backdrop-blur-md"
-            >
+              class="absolute left-2 top-2 rounded-[32px] border border-[#ff3366]/25 bg-[#ff3366]/12 p-5 shadow-[0_0_45px_rgba(255,51,102,0.18)] backdrop-blur-md">
               <Clapperboard class="h-10 w-10 text-[#ff6f98]" />
               <p class="mt-3 text-sm font-black">微短剧引擎</p>
             </div>
             <div
-              class="absolute right-4 top-28 rounded-[32px] border border-[#00bfa5]/25 bg-[#00bfa5]/12 p-5 shadow-[0_0_45px_rgba(0,191,165,0.18)] backdrop-blur-md"
-            >
+              class="absolute -right-2 top-28 rounded-[32px] border border-[#00bfa5]/25 bg-[#00bfa5]/12 p-5 shadow-[0_0_45px_rgba(0,191,165,0.18)] backdrop-blur-md">
               <Gamepad2 class="h-10 w-10 text-[#00e0c5]" />
               <p class="mt-3 text-sm font-black">游戏大厅</p>
             </div>
             <div
-              class="absolute bottom-6 left-1/2 w-[78%] -translate-x-1/2 rounded-[36px] border border-white/10 bg-white/[0.08] p-6 shadow-2xl shadow-black/35 backdrop-blur-xl"
-            >
+              class="absolute -bottom-2 left-1/2 w-[50%] -translate-x-1/2 rounded-[24px] border border-white/10 bg-white/[0.08] p-3 shadow-2xl shadow-black/35 backdrop-blur-xl">
               <div
-                class="relative mx-auto aspect-square max-w-[300px] rounded-[34px] bg-[radial-gradient(circle_at_35%_25%,#ff6f98_0%,#7c4dff_38%,#00bfa5_100%)] p-5 shadow-[0_30px_100px_rgba(124,77,255,0.25)]"
-              >
+                class="relative mx-auto aspect-square max-w-[160px] rounded-[20px] bg-[radial-gradient(circle_at_35%_25%,#ff6f98_0%,#7c4dff_38%,#00bfa5_100%)] p-3 shadow-[0_30px_100px_rgba(124,77,255,0.25)]">
                 <div
-                  class="grid h-full w-full place-items-center rounded-[28px] border border-white/20 bg-[#080b2c]/70"
-                >
+                  class="grid h-full w-full place-items-center rounded-[16px] border border-white/20 bg-[#080b2c]/70">
                   <div class="text-center">
-                    <div
-                      class="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-white text-[#ff3366]"
-                    >
-                      <Play class="h-9 w-9 fill-[#ff3366]" />
+                    <div class="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-white text-[#ff3366]">
+                      <Play class="h-5 w-5 fill-[#ff3366]" />
                     </div>
-                    <p class="mt-5 text-3xl font-black">PlayFlick</p>
-                    <p class="mt-2 text-sm text-white/56">Drama + Game</p>
+                    <p class="mt-3 text-lg font-black">PlayFlick</p>
+                    <p class="mt-1 text-[10px] text-white/56">Drama + Game</p>
                   </div>
                 </div>
               </div>
@@ -963,11 +800,8 @@ onBeforeUnmount(() => {
 
         <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
           <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <article
-              v-for="item in coreValues"
-              :key="item.title"
-              class="rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-            >
+            <article v-for="item in coreValues" :key="item.title"
+              class="rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl">
               <div class="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-white/[0.08]">
                 <component :is="item.icon" class="h-7 w-7 text-[#ff6f98]" />
               </div>
@@ -981,8 +815,7 @@ onBeforeUnmount(() => {
 
     <footer class="relative z-10 border-t border-white/10 bg-[#080a21]/72">
       <div
-        class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-white/48 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8"
-      >
+        class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-white/48 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <p>© 2026 PlayFlick Entertainment. All Rights Reserved.</p>
         <div class="flex flex-wrap gap-x-5 gap-y-2">
           <a href="#" class="transition hover:text-white">用户协议</a>
@@ -1018,6 +851,7 @@ onBeforeUnmount(() => {
 }
 
 @keyframes orbitPulse {
+
   0%,
   100% {
     transform: scale(0.96) rotate(0deg);
