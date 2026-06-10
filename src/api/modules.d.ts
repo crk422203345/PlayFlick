@@ -84,6 +84,7 @@ declare module '@/api/modules' {
       edition?: string
       order?: string
       gametype?: string
+      page?: number
       pagecode?: number
       key?: string
       appid?: string
@@ -105,6 +106,22 @@ declare module '@/api/modules' {
       now_page: number
       total_number: number
       total_page: number
+    }>
+  }
+
+  export const gameApi: {
+    getGameTypes(data?: {
+      type?: string
+      key?: string
+      appid?: string
+      versionCode?: number
+    }): Promise<{
+      a: string
+      b: string
+      c: Array<{
+        id: string | number
+        name: string
+      }>
     }>
   }
 }

@@ -1,5 +1,9 @@
 import request from '@/utils/request'
 
+function getGameApiUrl(path) {
+  return typeof window === 'undefined' ? `https://g.bingo.vip${path}` : `${window.location.origin}/game-api${path}`
+}
+
 export const siteApi = {
   getConfig() {
     return request.get('/site/config')
@@ -34,12 +38,7 @@ export const homeApi = {
     )
   },
   selectHotGames(data = {}) {
-    const url =
-      typeof window === 'undefined'
-        ? 'https://g.bingo.vip/box/Gameindex/alltypegame'
-        : `${window.location.origin}/game-api/box/Gameindex/alltypegame`
-
-    return request.post(url, {
+    return request.post(getGameApiUrl('/box/Gameindex/alltypegame'), {
       type: 'ios',
       edition: '',
       order: '1',
@@ -75,6 +74,15 @@ export const dramaApi = {
 }
 
 export const gameApi = {
+  getGameTypes(data = {}) {
+    return request.post(getGameApiUrl('/box/game/gamestypes'), {
+      type: 'android',
+      key: 'XC9RdtCC',
+      appid: '2',
+      versionCode: 1,
+      ...data,
+    })
+  },
   getCategories(params = {}) {
     return request.get('/game/categories', { params })
   },

@@ -1,14 +1,165 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { Clapperboard } from 'lucide-vue-next'
 import DramaCard from '@/components/DramaCard.vue'
-import { allDramas, dramaCategories } from '@/data/playflick'
+import { homeApi } from '@/api/modules'
+import type { DramaItem } from '@/data/playflick'
 
-const activeDramaCategory = ref('猜你喜欢')
+interface ClassificationApiItem {
+  classificationId: number
+  classificationName?: string
+}
 
-const filteredDramas = computed(() => {
-  if (activeDramaCategory.value === '猜你喜欢') return allDramas
-  return allDramas.filter((item) => item.type === activeDramaCategory.value)
+interface DramaCategoryOption {
+  classificationId: number
+  classificationName: string
+  classifyId: number
+}
+
+interface CourseApiItem {
+  courseId: number
+  courseDetailsId?: number
+  title?: string
+  img?: string
+  titleImg?: string
+  classificationName?: string
+  goodNum?: number
+  viewCounts?: number
+  status?: number
+  isDelete?: number
+}
+
+type DramaListItem = DramaItem & {
+  courseId: number
+  courseDetailsId?: number
+}
+
+const pageSize = 20
+const activeClassifyId = ref<string | number>('')
+const dramaCategories = ref<DramaCategoryOption[]>([])
+const dramaCategoryLoading = ref(false)
+const dramaCategoryError = ref('')
+const dramaList = ref<DramaListItem[]>([])
+const dramaLoading = ref(false)
+const dramaError = ref('')
+const currentPage = ref(1)
+const totalCount = ref(0)
+let dramaListRequestId = 0
+
+const dramaClassifyIdMap = new Map([
+  ['\u559c\u5267', 1],
+  ['\u8a00\u60c5', 23],
+  ['\u60ac\u7591', 24],
+  ['\u90fd\u5e02', 25],
+  ['\u5176\u4ed6', 36],
+])
+
+const formatCount = (value: number) => {
+  if (value >= 10000) return `${(value / 10000).toFixed(1)}万`
+  return `${value}`
+}
+
+const hasMoreDramas = () => totalCount.value === 0 || dramaList.value.length < totalCount.value
+
+const fetchDramaCategories = async () => {
+  dramaCategoryLoading.value = true
+  dramaCategoryError.value = ''
+
+  try {
+    const res = await homeApi.queryClassification({ languageType: 'zh' })
+    const list: ClassificationApiItem[] = Array.isArray(res?.data) ? res.data : []
+    dramaCategories.value = list
+      .filter((item) => item.classificationName && dramaClassifyIdMap.has(item.classificationName))
+      .map((item) => ({
+        classificationId: item.classificationId,
+        classificationName: item.classificationName!,
+        classifyId: dramaClassifyIdMap.get(item.classificationName!)!,
+      }))
+  } catch (error) {
+    dramaCategoryError.value = error instanceof Error ? error.message : '分类加载失败'
+  } finally {
+    dramaCategoryLoading.value = false
+  }
+}
+
+const fetchDramaList = async (reset = false) => {
+  if (!reset && dramaLoading.value) return
+  if (!reset && !hasMoreDramas()) return
+
+  if (reset) {
+    currentPage.value = 1
+    totalCount.value = 0
+    dramaList.value = []
+  }
+
+  const requestId = ++dramaListRequestId
+  dramaLoading.value = true
+  dramaError.value = ''
+
+  try {
+    const res = await homeApi.selectHotCourseRanking({
+      limit: pageSize,
+      page: currentPage.value,
+      sort: 2,
+      classifyId: activeClassifyId.value,
+      languageType: 'zh',
+    })
+    const data = res?.data
+    const list: CourseApiItem[] = Array.isArray(data?.list) ? data.list : []
+    const enabledList = list.filter(
+      (item) => item?.status !== 0 && item?.isDelete !== 1 && (item.img || item.titleImg),
+    )
+    const nextList = enabledList.map((item) => ({
+      courseId: item.courseId,
+      courseDetailsId: item.courseDetailsId,
+      title: item.title || '精选短剧',
+      type: item.classificationName || '短剧',
+      views: formatCount(item.goodNum ?? item.viewCounts ?? 0),
+      image: item.img || item.titleImg || '',
+    }))
+
+    if (requestId !== dramaListRequestId) return
+
+    totalCount.value = Number(data?.totalCount) || nextList.length
+    dramaList.value = reset ? nextList : [...dramaList.value, ...nextList]
+    currentPage.value = (Number(data?.currPage) || currentPage.value) + 1
+  } catch (error) {
+    if (requestId !== dramaListRequestId) return
+    dramaError.value = error instanceof Error ? error.message : '短剧加载失败'
+  } finally {
+    if (requestId === dramaListRequestId) {
+      dramaLoading.value = false
+    }
+  }
+}
+
+const selectDramaCategory = (classifyId: string | number) => {
+  activeClassifyId.value = classifyId
+  fetchDramaList(true)
+}
+
+const handleScroll = () => {
+  const scrollElement = document.documentElement
+  const distanceToBottom = scrollElement.scrollHeight - window.scrollY - window.innerHeight
+
+  if (distanceToBottom <= 160) {
+    fetchDramaList()
+  }
+}
+
+const openDramaDetail = (item: DramaListItem) => {
+  if (item.courseId == null || item.courseDetailsId == null) return
+  window.location.href = `https://tv.bingo.vip/#/me/detail/detail?id=${item.courseId}&courseDetailsId=${item.courseDetailsId}`
+}
+
+onMounted(() => {
+  fetchDramaCategories()
+  fetchDramaList(true)
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -26,22 +177,56 @@ const filteredDramas = computed(() => {
 
     <div class="scrollbar-none mb-8 flex gap-3 overflow-x-auto">
       <button
-        v-for="category in dramaCategories"
-        :key="category"
         class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition"
         :class="
-          activeDramaCategory === category
+          activeClassifyId === ''
             ? 'border-[#ff3366] bg-[#ff3366] text-white shadow-[0_0_22px_rgba(255,51,102,0.36)]'
             : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
         "
-        @click="activeDramaCategory = category"
+        @click="selectDramaCategory('')"
       >
-        {{ category }}
+        全部
       </button>
+      <button
+        v-for="category in dramaCategories"
+        :key="category.classificationId"
+        class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition"
+        :class="
+          activeClassifyId === category.classifyId
+            ? 'border-[#ff3366] bg-[#ff3366] text-white shadow-[0_0_22px_rgba(255,51,102,0.36)]'
+            : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
+        "
+        @click="selectDramaCategory(category.classifyId)"
+      >
+        {{ category.classificationName }}
+      </button>
+      <span v-if="dramaCategoryLoading" class="self-center text-sm font-semibold text-white/45">
+        分类加载中...
+      </span>
+      <span v-else-if="dramaCategoryError" class="self-center text-sm font-semibold text-[#ff8bad]">
+        {{ dramaCategoryError }}
+      </span>
     </div>
 
+    <p v-if="dramaError" class="mb-5 text-sm font-semibold text-[#ff8bad]">
+      {{ dramaError }}
+    </p>
+
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-      <DramaCard v-for="item in filteredDramas" :key="item.title" :item="item" compact />
+      <DramaCard
+        v-for="item in dramaList"
+        :key="`${item.courseId}-${item.courseDetailsId ?? item.title}`"
+        :item="item"
+        class="cursor-pointer"
+        compact
+        @click="openDramaDetail(item)"
+      />
+    </div>
+
+    <div class="py-8 text-center text-sm font-semibold text-white/50">
+      <span v-if="dramaLoading">正在加载数据...</span>
+      <span v-else-if="totalCount > 0 && dramaList.length >= totalCount">没有更多数据了</span>
+      <span v-else-if="dramaList.length === 0">暂无短剧数据</span>
     </div>
   </section>
 </template>
