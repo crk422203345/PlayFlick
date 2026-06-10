@@ -7,7 +7,6 @@ import RankingCard from '@/components/RankingCard.vue'
 import { homeApi } from '@/api/modules'
 import {
   featuredDramas,
-  heroSlides,
   hotGames,
   operationCards,
   rankings,
@@ -65,15 +64,20 @@ type VisualCategoryItem = (typeof visualCategories)[number] & {
   id?: number
 }
 
-type BannerSlide = (typeof heroSlides)[number] & {
+interface BannerSlide {
   id?: number
+  title: string
+  desc: string
+  tag: string
+  views: string
+  image: string
   url?: string
 }
 
 const activeHeroIndex = ref(0)
 const bannerLoading = ref(false)
 const bannerError = ref('')
-const bannerSlides = ref<BannerSlide[]>([...heroSlides])
+const bannerSlides = ref<BannerSlide[]>([])
 const featuredDramaLoading = ref(false)
 const featuredDramaError = ref('')
 const featuredDramaList = ref([...featuredDramas])
@@ -88,9 +92,7 @@ const hotGameError = ref('')
 const hotGameList = ref([...hotGames])
 let heroTimer: number | undefined
 
-const activeHero = computed(
-  () => bannerSlides.value[activeHeroIndex.value] ?? bannerSlides.value[0] ?? heroSlides[0]!,
-)
+const activeHero = computed(() => bannerSlides.value[activeHeroIndex.value] ?? bannerSlides.value[0])
 
 const fetchBannerList = async () => {
   bannerLoading.value = true
@@ -101,18 +103,16 @@ const fetchBannerList = async () => {
     const list: BannerApiItem[] = Array.isArray(res?.data) ? res.data : []
     const enabledList = list.filter((item) => item?.state !== 0 && item?.imageUrl)
 
-    if (enabledList.length > 0) {
-      bannerSlides.value = enabledList.map((item) => ({
-        id: item.id,
-        title: item.name || '精选短剧',
-        desc: item.describes || '精彩短剧正在热播，立即开启沉浸式追剧体验。',
-        tag: item.languageName || '简体中文',
-        views: '精选推荐',
-        image: item.imageUrl || '',
-        url: item.url,
-      }))
-      activeHeroIndex.value = 0
-    }
+    bannerSlides.value = enabledList.map((item) => ({
+      id: item.id,
+      title: item.name || '精选短剧',
+      desc: item.describes || '精彩短剧正在热播，立即开启沉浸式追剧体验。',
+      tag: item.languageName || '简体中文',
+      views: '精选推荐',
+      image: item.imageUrl || '',
+      url: item.url,
+    }))
+    activeHeroIndex.value = 0
   } catch (error) {
     bannerError.value = error instanceof Error ? error.message : '轮播图加载失败'
   } finally {
@@ -270,6 +270,7 @@ onBeforeUnmount(() => {
       class="group relative min-h-[430px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] shadow-2xl shadow-black/30"
     >
       <img
+        v-if="activeHero"
         :src="activeHero.image"
         :alt="activeHero.title"
         class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
@@ -277,7 +278,10 @@ onBeforeUnmount(() => {
       <div
         class="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,32,0.94)_0%,rgba(8,10,32,0.6)_48%,rgba(8,10,32,0.2)_100%)]"
       ></div>
-      <div class="relative flex h-full min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10">
+      <div
+        v-if="activeHero"
+        class="relative flex h-full min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10"
+      >
         <div class="mb-4 flex flex-wrap items-center gap-3">
           <span
             class="rounded-full bg-[#ff3366] px-3 py-1 text-xs font-black text-white shadow-[0_0_20px_rgba(255,51,102,0.5)]"
@@ -328,6 +332,19 @@ onBeforeUnmount(() => {
             @click="activeHeroIndex = index"
           ></button>
         </div>
+      </div>
+      <div
+        v-else
+        class="relative flex h-full min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10"
+      >
+        <div class="mb-4 flex flex-wrap items-center gap-3">
+          <span class="text-xs font-semibold text-white/52">
+            {{ bannerLoading ? '轮播图加载中...' : bannerError || '暂无轮播图' }}
+          </span>
+        </div>
+        <h1 class="max-w-xl text-4xl font-black leading-tight tracking-normal sm:text-6xl">
+          PlayFlick
+        </h1>
       </div>
     </article>
 
