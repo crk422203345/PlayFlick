@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ChevronDown, ChevronUp, Joystick } from 'lucide-vue-next'
+import EmptyState from '@/components/EmptyState.vue'
 import GameCard from '@/components/GameCard.vue'
 import { gameApi, homeApi } from '@/api/modules'
 import type { GameItem } from '@/data/playflick'
+import TransitionPage from '@/pages/TransitionPage.vue'
 
 const GAME_BATCH_SIZE = 20
 const ALL_GAME_TYPE = '全部游戏'
 const COLLAPSED_CATEGORY_COUNT = 12
+const CATEGORY_TRANSITION_DURATION = 700
 
 interface HotGameApiItem {
   id: number
@@ -32,6 +35,10 @@ type HotGameItem = GameItem & {
   id?: number
 }
 
+const emit = defineEmits<{
+  'page-ready': []
+}>()
+
 const gameTypes = ref<GameTypeApiItem[]>([{ id: '0', name: ALL_GAME_TYPE }])
 const activeGameType = ref(ALL_GAME_TYPE)
 const isCategoryExpanded = ref(false)
@@ -42,11 +49,13 @@ const nextPage = ref(1)
 const isGameTypeLoading = ref(false)
 const isInitialLoading = ref(false)
 const isLoadingMore = ref(false)
+const isCategoryTransitioning = ref(false)
 const gameTypeError = ref('')
 const gameError = ref('')
 const loadMoreTrigger = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | undefined
 let loadVersion = 0
+let categoryTransitionId = 0
 
 const visibleGames = computed(() => fetchedGames.value.slice(0, visibleCount.value))
 
@@ -65,13 +74,25 @@ const footerText = computed(() => {
   if (isInitialLoading.value) return '正在加载数据...'
   if (gameError.value) return gameError.value
   if (isLoadingMore.value) return '正在加载数据...'
-  if (fetchedGames.value.length === 0) return '暂无游戏数据'
+  if (fetchedGames.value.length === 0) return ''
   return hasMoreGames.value ? '上滑加载更多' : '没有更多数据了'
 })
 
 const formatCount = (value: number) => {
   if (value >= 10000) return `${(value / 10000).toFixed(1)}万`
   return `${value}`
+}
+
+const wait = (duration: number) =>
+  new Promise<void>((resolve) => {
+    window.setTimeout(resolve, duration)
+  })
+
+const observeLoadMoreTrigger = () => {
+  if (!observer || !loadMoreTrigger.value) return
+
+  observer.disconnect()
+  observer.observe(loadMoreTrigger.value)
 }
 
 const mapGameItem = (item: HotGameApiItem): HotGameItem => ({
@@ -211,12 +232,21 @@ const loadMoreGames = async () => {
   }
 }
 
-const selectGameType = (gameType: string) => {
-  if (activeGameType.value === gameType) return
+const selectGameType = async (gameType: string) => {
+  if (activeGameType.value === gameType && !isCategoryTransitioning.value) return
 
+  const transitionId = ++categoryTransitionId
   activeGameType.value = gameType
   isCategoryExpanded.value = false
-  fetchInitialGames()
+  isCategoryTransitioning.value = true
+
+  await Promise.all([wait(CATEGORY_TRANSITION_DURATION), fetchInitialGames()])
+
+  if (transitionId === categoryTransitionId) {
+    isCategoryTransitioning.value = false
+    await nextTick()
+    observeLoadMoreTrigger()
+  }
 }
 
 const openGameDetail = (item: HotGameItem) => {
@@ -224,10 +254,7 @@ const openGameDetail = (item: HotGameItem) => {
   window.location.href = `https://g.bingo.vip/#/gamedetails/content?gid=${item.id}&edition=0&key=XC9RdtCC`
 }
 
-onMounted(() => {
-  fetchGameTypes()
-  fetchInitialGames()
-
+onMounted(async () => {
   observer = new IntersectionObserver(
     ([entry]) => {
       if (entry?.isIntersecting) loadMoreGames()
@@ -237,10 +264,14 @@ onMounted(() => {
     },
   )
 
-  if (loadMoreTrigger.value) observer.observe(loadMoreTrigger.value)
+  await Promise.all([fetchGameTypes(), fetchInitialGames()])
+  await nextTick()
+  observeLoadMoreTrigger()
+  emit('page-ready')
 })
 
 onBeforeUnmount(() => {
+  categoryTransitionId += 1
   observer?.disconnect()
 })
 </script>
@@ -275,7 +306,7 @@ onBeforeUnmount(() => {
             ? 'border-[#00bfa5] bg-[#00bfa5] text-[#031b20] shadow-[0_0_22px_rgba(0,191,165,0.36)]'
             : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
         "
-        :disabled="isInitialLoading || isLoadingMore"
+        :disabled="isInitialLoading || isLoadingMore || isCategoryTransitioning"
         @click="selectGameType(category.name)"
       >
         {{ category.name }}
@@ -299,31 +330,43 @@ onBeforeUnmount(() => {
       {{ gameTypeError }}
     </p>
 
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      <GameCard
-        v-for="item in visibleGames"
-        :key="item.id ?? item.title"
-        :item="item"
-        button-text="立即畅玩"
-        class="cursor-pointer"
-        detailed
-        @click="openGameDetail(item)"
-      />
-    </div>
+    <div class="min-h-[620px]">
+      <TransitionPage v-if="isCategoryTransitioning" compact />
+      <template v-else>
+        <div v-if="visibleGames.length > 0" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <GameCard
+            v-for="item in visibleGames"
+            :key="item.id ?? item.title"
+            :item="item"
+            button-text="立即畅玩"
+            class="cursor-pointer"
+            detailed
+            @click="openGameDetail(item)"
+          />
+        </div>
 
-    <div ref="loadMoreTrigger" class="mt-10 flex min-h-12 items-center justify-center">
-      <p
-        class="rounded-full border px-5 py-2.5 text-sm font-black"
-        :class="
-          gameError
-            ? 'border-[#ff8bad]/30 bg-[#ff8bad]/10 text-[#ff8bad]'
-            : isInitialLoading || isLoadingMore
-              ? 'border-[#00bfa5]/30 bg-[#00bfa5]/10 text-[#9fffee]'
-              : 'border-white/10 bg-white/[0.05] text-white/52'
-        "
-      >
-        {{ footerText }}
-      </p>
+        <EmptyState
+          v-else-if="!isInitialLoading && !isLoadingMore && !gameError"
+          description="当前游戏分类暂时没有可展示内容"
+          tone="green"
+        />
+
+        <div ref="loadMoreTrigger" class="mt-10 flex min-h-12 items-center justify-center">
+          <p
+            v-if="footerText"
+            class="rounded-full border px-5 py-2.5 text-sm font-black"
+            :class="
+              gameError
+                ? 'border-[#ff8bad]/30 bg-[#ff8bad]/10 text-[#ff8bad]'
+                : isInitialLoading || isLoadingMore
+                  ? 'border-[#00bfa5]/30 bg-[#00bfa5]/10 text-[#9fffee]'
+                  : 'border-white/10 bg-white/[0.05] text-white/52'
+            "
+          >
+            {{ footerText }}
+          </p>
+        </div>
+      </template>
     </div>
   </section>
 </template>

@@ -2,8 +2,10 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { Clapperboard } from 'lucide-vue-next'
 import DramaCard from '@/components/DramaCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { homeApi } from '@/api/modules'
 import type { DramaItem } from '@/data/playflick'
+import TransitionPage from '@/pages/TransitionPage.vue'
 
 interface ClassificationApiItem {
   classificationId: number
@@ -34,7 +36,12 @@ type DramaListItem = DramaItem & {
   courseDetailsId?: number
 }
 
+const emit = defineEmits<{
+  'page-ready': []
+}>()
+
 const pageSize = 20
+const CATEGORY_TRANSITION_DURATION = 700
 const activeClassifyId = ref<string | number>('')
 const dramaCategories = ref<DramaCategoryOption[]>([])
 const dramaCategoryLoading = ref(false)
@@ -42,9 +49,11 @@ const dramaCategoryError = ref('')
 const dramaList = ref<DramaListItem[]>([])
 const dramaLoading = ref(false)
 const dramaError = ref('')
+const isCategoryTransitioning = ref(false)
 const currentPage = ref(1)
 const totalCount = ref(0)
 let dramaListRequestId = 0
+let categoryTransitionId = 0
 
 const dramaClassifyIdMap = new Map([
   ['\u559c\u5267', 1],
@@ -60,6 +69,11 @@ const formatCount = (value: number) => {
 }
 
 const hasMoreDramas = () => totalCount.value === 0 || dramaList.value.length < totalCount.value
+
+const wait = (duration: number) =>
+  new Promise<void>((resolve) => {
+    window.setTimeout(resolve, duration)
+  })
 
 const fetchDramaCategories = async () => {
   dramaCategoryLoading.value = true
@@ -133,9 +147,18 @@ const fetchDramaList = async (reset = false) => {
   }
 }
 
-const selectDramaCategory = (classifyId: string | number) => {
+const selectDramaCategory = async (classifyId: string | number) => {
+  if (activeClassifyId.value === classifyId && !isCategoryTransitioning.value) return
+
+  const transitionId = ++categoryTransitionId
   activeClassifyId.value = classifyId
-  fetchDramaList(true)
+  isCategoryTransitioning.value = true
+
+  await Promise.all([wait(CATEGORY_TRANSITION_DURATION), fetchDramaList(true)])
+
+  if (transitionId === categoryTransitionId) {
+    isCategoryTransitioning.value = false
+  }
 }
 
 const handleScroll = () => {
@@ -152,13 +175,14 @@ const openDramaDetail = (item: DramaListItem) => {
   window.location.href = `https://tv.bingo.vip/#/me/detail/detail?id=${item.courseId}&courseDetailsId=${item.courseDetailsId}`
 }
 
-onMounted(() => {
-  fetchDramaCategories()
-  fetchDramaList(true)
+onMounted(async () => {
   window.addEventListener('scroll', handleScroll, { passive: true })
+  await Promise.all([fetchDramaCategories(), fetchDramaList(true)])
+  emit('page-ready')
 })
 
 onBeforeUnmount(() => {
+  categoryTransitionId += 1
   window.removeEventListener('scroll', handleScroll)
 })
 </script>
@@ -183,6 +207,7 @@ onBeforeUnmount(() => {
             ? 'border-[#ff3366] bg-[#ff3366] text-white shadow-[0_0_22px_rgba(255,51,102,0.36)]'
             : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
         "
+        :disabled="isCategoryTransitioning || dramaLoading"
         @click="selectDramaCategory('')"
       >
         全部
@@ -196,6 +221,7 @@ onBeforeUnmount(() => {
             ? 'border-[#ff3366] bg-[#ff3366] text-white shadow-[0_0_22px_rgba(255,51,102,0.36)]'
             : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
         "
+        :disabled="isCategoryTransitioning || dramaLoading"
         @click="selectDramaCategory(category.classifyId)"
       >
         {{ category.classificationName }}
@@ -212,21 +238,33 @@ onBeforeUnmount(() => {
       {{ dramaError }}
     </p>
 
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-      <DramaCard
-        v-for="item in dramaList"
-        :key="`${item.courseId}-${item.courseDetailsId ?? item.title}`"
-        :item="item"
-        class="cursor-pointer"
-        compact
-        @click="openDramaDetail(item)"
-      />
-    </div>
+    <div class="min-h-[620px]">
+      <TransitionPage v-if="isCategoryTransitioning" compact />
+      <template v-else>
+        <div v-if="dramaList.length > 0" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+          <DramaCard
+            v-for="item in dramaList"
+            :key="`${item.courseId}-${item.courseDetailsId ?? item.title}`"
+            :item="item"
+            class="cursor-pointer"
+            compact
+            @click="openDramaDetail(item)"
+          />
+        </div>
 
-    <div class="py-8 text-center text-sm font-semibold text-white/50">
-      <span v-if="dramaLoading">正在加载数据...</span>
-      <span v-else-if="totalCount > 0 && dramaList.length >= totalCount">没有更多数据了</span>
-      <span v-else-if="dramaList.length === 0">暂无短剧数据</span>
+        <EmptyState
+          v-else-if="!dramaLoading"
+          description="当前短剧分类暂时没有可展示内容"
+          tone="pink"
+        />
+
+        <div class="py-8 text-center text-sm font-semibold text-white/50">
+          <span v-if="dramaLoading">正在加载数据...</span>
+          <span v-else-if="dramaList.length > 0 && totalCount > 0 && dramaList.length >= totalCount"
+            >没有更多数据了</span
+          >
+        </div>
+      </template>
     </div>
   </section>
 </template>
