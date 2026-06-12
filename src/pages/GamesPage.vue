@@ -52,7 +52,7 @@ onMounted(async () => {
         <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#00bfa5]/16">
           <Joystick class="h-8 w-8 text-[#00e0c5]" />
         </div>
-        <h1 class="text-4xl font-black leading-tight sm:text-6xl text-brand-text">小游戏专区</h1>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-brand-text">小游戏专区</h1>
         <p class="mt-4 text-base leading-8 text-brand-text-secondary sm:text-lg">
           免下载、低等待、强反馈。把追剧后的三分钟，变成赢奖励的高光时刻。
         </p>
@@ -102,7 +102,7 @@ onMounted(async () => {
     </div>
 
     <!-- Game List -->
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
       <GameCard
         v-for="item in filteredGames"
         :key="item.title"

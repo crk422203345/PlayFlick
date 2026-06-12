@@ -140,7 +140,7 @@ const visualCategoryImageRules = [
     image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=600&q=82',
   },
   {
-    keywords: ['甜宠', '恋爱', '爱情'],
+    keywords: ['甜宠', '恋爱', '爱情', '言情'],
     image: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=82',
   },
   {
@@ -149,7 +149,7 @@ const visualCategoryImageRules = [
   },
   {
     keywords: ['古装', '宫廷', '穿越'],
-    image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=600&q=82',
+    image: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=600&q=82',
   },
   {
     keywords: ['悬疑', '推理', '刑侦'],
@@ -167,13 +167,17 @@ const visualCategoryImageRules = [
     keywords: ['神医', '医妃', '医'],
     image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=600&q=82',
   },
+  {
+    keywords: ['喜剧', '幽默', '爆笑'],
+    image: 'https://images.unsplash.com/photo-1514306191717-452ec28c7814?auto=format&fit=crop&w=600&q=82',
+  },
 ]
 
 const fallbackVisualCategoryImages = [
-  'https://images.unsplash.com/photo-1495567720989-cebdbdd97913?auto=format&fit=crop&w=600&q=82',
-  'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=82',
-  'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=600&q=82',
-  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=82',
+  'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=82',
+  'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=600&q=82',
+  'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=82',
+  'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=82',
 ]
 
 const getVisualCategoryImage = (name: string, index: number) => {
@@ -389,15 +393,32 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-6 lg:grid-cols-[1.55fr_0.85fr] lg:px-8 lg:py-10">
+  <section class="mx-auto max-w-7xl grid grid-cols-1 gap-5 px-4 py-8 sm:px-6 lg:grid-cols-[1.55fr_0.85fr] lg:px-8 lg:py-10">
+    <!-- Banner Loading Skeleton -->
     <article
-      class="group relative min-h-[430px] overflow-hidden rounded-[28px] border border-brand-border bg-brand-card shadow-2xl shadow-brand-text/5">
+      v-if="bannerLoading && bannerSlides.length === 0"
+      class="relative min-h-[340px] sm:min-h-[400px] lg:min-h-[430px] overflow-hidden rounded-[28px] border border-brand-border bg-brand-card animate-pulse flex flex-col justify-end p-5 sm:p-8 lg:p-10"
+    >
+      <div class="h-6 w-32 rounded-full bg-white/10 mb-4 animate-pulse"></div>
+      <div class="h-12 w-3/4 rounded-2xl bg-white/10 mb-4 animate-pulse"></div>
+      <div class="h-6 w-1/2 rounded-xl bg-white/10 mb-6 animate-pulse"></div>
+      <div class="flex gap-3">
+        <div class="h-10 w-28 rounded-full bg-white/10 animate-pulse"></div>
+        <div class="h-10 w-28 rounded-full bg-white/10 animate-pulse"></div>
+      </div>
+    </article>
+
+    <!-- Actual Banner Card -->
+    <article
+      v-else
+      class="group relative min-h-[340px] sm:min-h-[400px] lg:min-h-[430px] overflow-hidden rounded-[28px] border border-brand-border bg-brand-card shadow-2xl shadow-brand-text/5"
+    >
       <img v-if="activeHero" :src="activeHero.image" :alt="activeHero.title"
         class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
       <div
         class="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,32,0.94)_0%,rgba(8,10,32,0.6)_48%,rgba(8,10,32,0.2)_100%)]">
       </div>
-      <div v-if="activeHero" class="relative flex h-full min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10">
+      <div v-if="activeHero" class="relative flex h-full min-h-[340px] sm:min-h-[400px] lg:min-h-[430px] max-w-2xl flex-col justify-end p-5 sm:p-8 lg:p-10">
         <div class="mb-4 flex flex-wrap items-center gap-3">
           <span
             class="rounded-full bg-[#ff3366] px-3 py-1 text-xs font-black text-white shadow-[0_0_20px_rgba(255,51,102,0.5)]">
@@ -412,7 +433,7 @@ onBeforeUnmount(() => {
             {{ activeHero.views }}
           </span>
         </div>
-        <h1 class="max-w-xl text-4xl font-black leading-tight tracking-normal sm:text-6xl text-white">
+        <h1 class="max-w-xl text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-normal text-white">
           {{ activeHero.title }}
         </h1>
         <p class="mt-4 max-w-lg text-base leading-8 text-white/90 sm:text-lg">
@@ -435,24 +456,24 @@ onBeforeUnmount(() => {
               " :aria-label="`切换到第 ${index + 1} 张 Banner`" @click="activeHeroIndex = index"></button>
         </div>
       </div>
-      <div v-else class="relative flex h-full min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10">
+      <div v-else class="relative flex h-full min-h-[340px] sm:min-h-[400px] lg:min-h-[430px] max-w-2xl flex-col justify-end p-5 sm:p-8 lg:p-10">
         <div class="mb-4 flex flex-wrap items-center gap-3">
           <span class="text-xs font-semibold text-brand-text-secondary">
             {{ bannerLoading ? '轮播图加载中...' : bannerError || '暂无轮播图' }}
           </span>
         </div>
-        <h1 class="max-w-xl text-4xl font-black leading-tight tracking-normal sm:text-6xl text-brand-text">
+        <h1 class="max-w-xl text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-normal text-brand-text">
           PlayFlick
         </h1>
       </div>
     </article>
 
     <article
-      class="relative min-h-[360px] overflow-hidden rounded-[28px] border border-[#00bfa5]/30 bg-brand-card p-6 shadow-[0_0_45px_rgba(0,191,165,0.08)] backdrop-blur-md sm:p-8 lg:min-h-full transition-colors duration-300">
+      class="relative min-h-[340px] sm:min-h-[380px] lg:min-h-full overflow-hidden rounded-[28px] border border-[#00bfa5]/30 bg-brand-card p-5 sm:p-8 shadow-[0_0_45px_rgba(0,191,165,0.08)] backdrop-blur-md transition-colors duration-300">
       <img src="https://images.unsplash.com/photo-1560253023-3ec5d502959f?auto=format&fit=crop&w=900&q=86" alt="小游戏宣传"
         class="absolute inset-0 h-full w-full object-cover opacity-54" />
       <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,12,31,0.22),rgba(5,12,31,0.9))]"></div>
-      <div class="relative flex h-full min-h-[320px] flex-col justify-between">
+      <div class="relative flex h-full min-h-[280px] sm:min-h-[320px] flex-col justify-between">
         <div class="flex justify-end">
           <span
             class="rounded-full border border-[#00bfa5]/40 bg-[#00bfa5]/15 px-3 py-1 text-xs font-black text-[#8fffee]">
@@ -461,7 +482,7 @@ onBeforeUnmount(() => {
         </div>
         <div>
           <Gamepad2 class="mb-5 h-12 w-12 text-[#00e0c5]" />
-          <h2 class="text-3xl font-black leading-tight sm:text-4xl text-white">小游戏宇宙<br />一键开玩</h2>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight text-white">小游戏宇宙<br />一键开玩</h2>
           <p class="mt-4 max-w-sm text-sm leading-7 text-white/80">
             消除、竞速、塔防、冒险随时切换，低门槛高爽感，追剧间隙也能赢奖励。
           </p>
@@ -494,7 +515,7 @@ onBeforeUnmount(() => {
         <ChevronRight class="h-4 w-4" />
       </button>
     </div>
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
       <DramaCard
         v-for="item in featuredDramaList"
         :key="item.title"
@@ -518,7 +539,7 @@ onBeforeUnmount(() => {
         </p>
       </div>
     </div>
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
       <GameCard
         v-for="item in hotGameList"
         :key="item.title"
@@ -564,7 +585,7 @@ onBeforeUnmount(() => {
         hotRankingError
       }}</span>
     </div>
-    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 lg:gap-5">
       <RankingCard
         v-for="(item, index) in hotRankingList"
         :key="`${item.title}-${index}`"
@@ -586,13 +607,13 @@ onBeforeUnmount(() => {
         {{ visualCategoryError }}
       </p>
     </div>
-    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
       <button v-for="item in visualCategoryList" :key="item.id ?? item.name"
         class="group relative aspect-[3/5] overflow-hidden rounded-3xl border border-brand-border bg-brand-card shadow-xl shadow-brand-text/5 transition-all duration-300 hover:scale-105 hover:shadow-2xl border-none cursor-pointer"
         @click="openTvHome">
         <img :src="item.image" :alt="item.name"
           class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.45)_0%,rgba(0,0,0,0)_40%,rgba(0,0,0,0.75)_100%)]"></div>
         <span class="absolute inset-x-0 bottom-5 text-center text-xl font-black text-white">{{
           item.name
         }}</span>
@@ -601,7 +622,7 @@ onBeforeUnmount(() => {
   </section>
 
   <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
-    <div class="grid gap-5 md:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:gap-5">
       <article
         v-for="(item, index) in homeOperationCards"
         :key="item.title"

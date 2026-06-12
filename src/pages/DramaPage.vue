@@ -193,7 +193,7 @@ onBeforeUnmount(() => {
       <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16">
         <Clapperboard class="h-8 w-8 text-[#ff6f98]" />
       </div>
-      <h1 class="text-4xl font-black leading-tight sm:text-6xl text-brand-text">短剧专区</h1>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-brand-text">短剧专区</h1>
       <p class="mt-4 text-base leading-8 text-brand-text-secondary sm:text-lg">
         从都市逆袭到甜宠古装，PlayFlick 用高密度剧情满足你的碎片化追剧时刻。
       </p>
@@ -241,7 +241,7 @@ onBeforeUnmount(() => {
     <div class="min-h-[620px]">
       <TransitionPage v-slot:loading v-if="isCategoryTransitioning" compact />
       <template v-else>
-        <div v-if="dramaList.length > 0" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        <div v-if="dramaList.length > 0" class="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 lg:gap-5">
           <DramaCard
             v-for="item in dramaList"
             :key="`${item.courseId}-${item.courseDetailsId ?? item.title}`"

@@ -11,7 +11,7 @@ import { coreValues } from '@/data/playflick'
       <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16">
         <Gem class="h-8 w-8 text-[#ff6f98]" />
       </div>
-      <h1 class="max-w-3xl text-4xl font-black leading-tight sm:text-6xl text-brand-text">
+      <h1 class="max-w-3xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-brand-text">
         让每一次打开，都有好剧与好玩相遇
       </h1>
       <p class="mt-6 max-w-2xl text-base leading-8 text-brand-text-secondary sm:text-lg">
@@ -33,37 +33,37 @@ import { coreValues } from '@/data/playflick'
     </div>
 
     <!-- Orbit Animation -->
-    <div class="relative min-h-[430px]">
-      <div class="brand-orbit absolute inset-8 rounded-full border border-brand-border"></div>
+    <div class="relative min-h-[400px] sm:min-h-[430px]">
+      <div class="brand-orbit absolute inset-6 sm:inset-8 rounded-full border border-brand-border"></div>
       <div
-        class="absolute left-2 top-2 rounded-[32px] border border-[#ff3366]/25 bg-[#ff3366]/12 p-5 shadow-[0_0_45px_rgba(255,51,102,0.18)] backdrop-blur-md text-white"
+        class="absolute left-1 sm:left-2 top-2 rounded-[24px] sm:rounded-[32px] border border-[#ff3366]/25 bg-[#ff3366]/12 p-3.5 sm:p-5 shadow-[0_0_45px_rgba(255,51,102,0.18)] backdrop-blur-md text-brand-text"
       >
-        <Clapperboard class="h-10 w-10 text-[#ff6f98]" />
-        <p class="mt-3 text-sm font-black">微短剧引擎</p>
+        <Clapperboard class="h-8 w-8 sm:h-10 sm:w-10 text-[#ff6f98]" />
+        <p class="mt-2 sm:mt-3 text-xs sm:text-sm font-black text-brand-text">微短剧引擎</p>
       </div>
       <div
-        class="absolute -right-2 top-28 rounded-[32px] border border-[#00bfa5]/25 bg-[#00bfa5]/12 p-5 shadow-[0_0_45px_rgba(0,191,165,0.18)] backdrop-blur-md text-white"
+        class="absolute right-1 sm:-right-2 top-24 sm:top-28 rounded-[24px] sm:rounded-[32px] border border-[#00bfa5]/25 bg-[#00bfa5]/12 p-3.5 sm:p-5 shadow-[0_0_45px_rgba(0,191,165,0.18)] backdrop-blur-md text-brand-text"
       >
-        <Gamepad2 class="h-10 w-10 text-[#00e0c5]" />
-        <p class="mt-3 text-sm font-black">游戏大厅</p>
+        <Gamepad2 class="h-8 w-8 sm:h-10 sm:w-10 text-[#00e0c5]" />
+        <p class="mt-2 sm:mt-3 text-xs sm:text-sm font-black text-brand-text">游戏大厅</p>
       </div>
       <div
-        class="absolute -bottom-2 left-1/2 w-[50%] -translate-x-1/2 rounded-[24px] border border-brand-border bg-brand-card/80 p-3 shadow-2xl shadow-brand-text/5 backdrop-blur-xl"
+        class="absolute -bottom-2 left-1/2 w-[55%] sm:w-[50%] -translate-x-1/2 rounded-[20px] sm:rounded-[24px] border border-brand-border bg-brand-card/80 p-2.5 sm:p-3 shadow-2xl shadow-brand-text/5 backdrop-blur-xl"
       >
         <div
-          class="relative mx-auto aspect-square max-w-[160px] rounded-[20px] bg-[radial-gradient(circle_at_35%_25%,#ff6f98_0%,#7c4dff_38%,#00bfa5_100%)] p-3 shadow-[0_30px_100px_rgba(124,77,255,0.25)]"
+          class="relative mx-auto aspect-square max-w-[130px] sm:max-w-[160px] rounded-[16px] sm:rounded-[20px] bg-[radial-gradient(circle_at_35%_25%,#ff6f98_0%,#7c4dff_38%,#00bfa5_100%)] p-2.5 sm:p-3 shadow-[0_30px_100px_rgba(124,77,255,0.25)]"
         >
           <div
-            class="grid h-full w-full place-items-center rounded-[16px] border border-white/20 bg-[#080b2c]/70 text-white"
+            class="grid h-full w-full place-items-center rounded-[12px] sm:rounded-[16px] border border-white/20 bg-[#080b2c]/70 text-white"
           >
             <div class="text-center">
               <div
-                class="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-white text-[#ff3366]"
+                class="mx-auto grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-xl bg-white text-[#ff3366]"
               >
-                <Play class="h-5 w-5 fill-[#ff3366]" />
+                <Play class="h-4 w-4 sm:h-5 sm:w-5 fill-[#ff3366]" />
               </div>
-              <p class="mt-3 text-lg font-black">PlayFlick</p>
-              <p class="mt-1 text-[10px] text-white/56">Drama + Game</p>
+              <p class="mt-2 sm:mt-3 text-base sm:text-lg font-black text-white">PlayFlick</p>
+              <p class="mt-0.5 sm:mt-1 text-[9px] sm:text-[10px] text-white/56">Drama + Game</p>
             </div>
           </div>
         </div>

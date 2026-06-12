@@ -73,9 +73,16 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
 .scrollbar-none::-webkit-scrollbar {
