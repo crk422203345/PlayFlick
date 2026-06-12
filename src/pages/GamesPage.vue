@@ -1,372 +1,115 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { ChevronDown, ChevronUp, Joystick } from 'lucide-vue-next'
-import EmptyState from '@/components/EmptyState.vue'
+import { computed, ref, onMounted } from 'vue'
+import { Joystick, RefreshCw } from 'lucide-vue-next'
 import GameCard from '@/components/GameCard.vue'
-import { gameApi, homeApi } from '@/api/modules'
-import type { GameItem } from '@/data/playflick'
-import TransitionPage from '@/pages/TransitionPage.vue'
-
-const GAME_BATCH_SIZE = 20
-const ALL_GAME_TYPE = '全部游戏'
-const COLLAPSED_CATEGORY_COUNT = 12
-const CATEGORY_TRANSITION_DURATION = 700
-
-interface HotGameApiItem {
-  id: number
-  pic1?: string
-  pic4?: string
-  downloadnum?: string
-  gamename?: string
-  game_tag?: string
-  typeword?: string
-  gametype?: string
-  gametype1?: string
-  gametype2?: string
-  gametypes?: string[]
-}
-
-interface GameTypeApiItem {
-  id: string | number
-  name: string
-}
-
-type HotGameItem = GameItem & {
-  id?: number
-}
+import { allGames } from '@/data/playflick'
+import { gameApi } from '@/api/modules'
 
 const emit = defineEmits<{
   'page-ready': []
 }>()
 
-const gameTypes = ref<GameTypeApiItem[]>([{ id: '0', name: ALL_GAME_TYPE }])
-const activeGameType = ref(ALL_GAME_TYPE)
-const isCategoryExpanded = ref(false)
-const fetchedGames = ref<HotGameItem[]>([])
-const visibleCount = ref(GAME_BATCH_SIZE)
-const totalNumber = ref(0)
-const nextPage = ref(1)
-const isGameTypeLoading = ref(false)
-const isInitialLoading = ref(false)
-const isLoadingMore = ref(false)
-const isCategoryTransitioning = ref(false)
-const gameTypeError = ref('')
-const gameError = ref('')
-const loadMoreTrigger = ref<HTMLElement | null>(null)
-let observer: IntersectionObserver | undefined
-let loadVersion = 0
-let categoryTransitionId = 0
-
-const visibleGames = computed(() => fetchedGames.value.slice(0, visibleCount.value))
-
-const visibleGameTypes = computed(() =>
-  isCategoryExpanded.value ? gameTypes.value : gameTypes.value.slice(0, COLLAPSED_CATEGORY_COUNT),
-)
-
-const hasHiddenGameTypes = computed(() => gameTypes.value.length > COLLAPSED_CATEGORY_COUNT)
-
-const hasMoreGames = computed(() => {
-  if (totalNumber.value === 0) return false
-  return visibleGames.value.length < totalNumber.value
-})
-
-const footerText = computed(() => {
-  if (isInitialLoading.value) return '正在加载数据...'
-  if (gameError.value) return gameError.value
-  if (isLoadingMore.value) return '正在加载数据...'
-  if (fetchedGames.value.length === 0) return ''
-  return hasMoreGames.value ? '上滑加载更多' : '没有更多数据了'
-})
-
-const formatCount = (value: number) => {
-  if (value >= 10000) return `${(value / 10000).toFixed(1)}万`
-  return `${value}`
-}
-
-const wait = (duration: number) =>
-  new Promise<void>((resolve) => {
-    window.setTimeout(resolve, duration)
-  })
-
-const observeLoadMoreTrigger = () => {
-  if (!observer || !loadMoreTrigger.value) return
-
-  observer.disconnect()
-  observer.observe(loadMoreTrigger.value)
-}
-
-const mapGameItem = (item: HotGameApiItem): HotGameItem => ({
-  id: item.id,
-  title: item.gamename || '热门小游戏',
-  category: item.typeword || item.gametype || item.gametypes?.join(' / ') || '小游戏',
-  players: formatCount(Number(item.downloadnum) || 0),
-  image: item.pic4 || item.pic1 || '',
-})
-
-const appendGames = (list: HotGameApiItem[]) => {
-  const existingIds = new Set(fetchedGames.value.map((item) => item.id).filter(Boolean))
-  const nextGames = list
-    .map(mapGameItem)
-    .filter((item) => item.id == null || !existingIds.has(item.id))
-
-  fetchedGames.value.push(...nextGames)
-}
+const activeGameCategory = ref('全部游戏')
+const gameCategories = ref<string[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
 
 const fetchGameTypes = async () => {
-  isGameTypeLoading.value = true
-  gameTypeError.value = ''
-
+  loading.value = true
+  error.value = null
   try {
     const res = await gameApi.getGameTypes()
-    const list: GameTypeApiItem[] = Array.isArray(res?.c) ? res.c : []
-    const enabledList = list.filter((item) => item?.name)
-
-    gameTypes.value = enabledList.some((item) => item.name === ALL_GAME_TYPE)
-      ? enabledList
-      : [{ id: '0', name: ALL_GAME_TYPE }, ...enabledList]
-  } catch (error) {
-    gameTypeError.value = error instanceof Error ? error.message : '游戏分类加载失败'
-  } finally {
-    isGameTypeLoading.value = false
-  }
-}
-
-const fetchGamePage = async (page: number, gameType: string, version: number) => {
-  const res = await homeApi.selectHotGames({
-    type: 'ios',
-    edition: '',
-    order: '1',
-    gametype: gameType,
-    page,
-    pagecode: page,
-    key: 'XC9RdtCC',
-    appid: '2',
-    versionCode: 1,
-  })
-
-  if (version !== loadVersion) {
-    return {
-      listCount: 0,
-      totalPage: page,
-      currentPage: page,
+    if (res && res.c && Array.isArray(res.c)) {
+      gameCategories.value = res.c.map((item) => item.name)
+    } else {
+      gameCategories.value = ['全部游戏', '休闲益智', '动作冒险', '竞速体育', '消除合成', '策略经营']
     }
-  }
-
-  totalNumber.value = Number(res?.total_number) || 0
-  const list: HotGameApiItem[] = Array.isArray(res?.lists) ? res.lists : []
-  appendGames(list)
-
-  const currentPage = Number(res?.now_page) || page
-  nextPage.value = currentPage + 1
-
-  return {
-    listCount: list.length,
-    totalPage: Number(res?.total_page) || currentPage,
-    currentPage,
-  }
-}
-
-const loadUntilVisibleCount = async (targetCount: number, gameType: string, version: number) => {
-  while (
-    version === loadVersion &&
-    fetchedGames.value.length < targetCount &&
-    (totalNumber.value === 0 || fetchedGames.value.length < totalNumber.value)
-  ) {
-    const result = await fetchGamePage(nextPage.value, gameType, version)
-
-    if (result.listCount === 0 || result.currentPage >= result.totalPage) break
-  }
-
-  if (version === loadVersion) {
-    visibleCount.value = Math.min(
-      targetCount,
-      fetchedGames.value.length,
-      totalNumber.value || targetCount,
-    )
-  }
-}
-
-const fetchInitialGames = async () => {
-  const version = ++loadVersion
-  const gameType = activeGameType.value
-
-  isInitialLoading.value = true
-  gameError.value = ''
-
-  try {
-    fetchedGames.value = []
-    visibleCount.value = GAME_BATCH_SIZE
-    totalNumber.value = 0
-    nextPage.value = 1
-    await loadUntilVisibleCount(GAME_BATCH_SIZE, gameType, version)
-  } catch (error) {
-    if (version === loadVersion) {
-      gameError.value = error instanceof Error ? error.message : '游戏数据加载失败'
-    }
+  } catch (err: any) {
+    console.error('Failed to fetch game types:', err)
+    error.value = err?.message || '获取游戏类型失败，已加载缓存数据'
+    gameCategories.value = ['全部游戏', '休闲益智', '动作冒险', '竞速体育', '消除合成', '策略经营']
   } finally {
-    if (version === loadVersion) isInitialLoading.value = false
+    loading.value = false
   }
 }
 
-const loadMoreGames = async () => {
-  if (isInitialLoading.value || isLoadingMore.value) return
-
-  if (!hasMoreGames.value) {
-    visibleCount.value = Math.min(visibleCount.value, fetchedGames.value.length)
-    return
-  }
-
-  isLoadingMore.value = true
-  gameError.value = ''
-  const version = loadVersion
-  const gameType = activeGameType.value
-
-  try {
-    await loadUntilVisibleCount(visibleGames.value.length + GAME_BATCH_SIZE, gameType, version)
-  } catch (error) {
-    if (version === loadVersion) {
-      gameError.value = error instanceof Error ? error.message : '游戏数据加载失败'
-    }
-  } finally {
-    if (version === loadVersion) isLoadingMore.value = false
-  }
-}
-
-const selectGameType = async (gameType: string) => {
-  if (activeGameType.value === gameType && !isCategoryTransitioning.value) return
-
-  const transitionId = ++categoryTransitionId
-  activeGameType.value = gameType
-  isCategoryExpanded.value = false
-  isCategoryTransitioning.value = true
-
-  await Promise.all([wait(CATEGORY_TRANSITION_DURATION), fetchInitialGames()])
-
-  if (transitionId === categoryTransitionId) {
-    isCategoryTransitioning.value = false
-    await nextTick()
-    observeLoadMoreTrigger()
-  }
-}
-
-const openGameDetail = (item: HotGameItem) => {
-  if (item.id == null) return
-  window.location.href = `https://g.bingo.vip/#/gamedetails/content?gid=${item.id}&edition=0&key=XC9RdtCC`
-}
-
-onMounted(async () => {
-  observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry?.isIntersecting) loadMoreGames()
-    },
-    {
-      rootMargin: '260px',
-    },
-  )
-
-  await Promise.all([fetchGameTypes(), fetchInitialGames()])
-  await nextTick()
-  observeLoadMoreTrigger()
-  emit('page-ready')
+const filteredGames = computed(() => {
+  if (activeGameCategory.value === '全部游戏') return allGames
+  return allGames.filter((item) => item.category === activeGameCategory.value)
 })
 
-onBeforeUnmount(() => {
-  categoryTransitionId += 1
-  observer?.disconnect()
+onMounted(async () => {
+  await fetchGameTypes()
+  emit('page-ready')
 })
 </script>
 
 <template>
   <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <!-- Header Block -->
     <div class="mb-8 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
       <div class="max-w-3xl">
         <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#00bfa5]/16">
           <Joystick class="h-8 w-8 text-[#00e0c5]" />
         </div>
-        <h1 class="text-4xl font-black leading-tight sm:text-6xl">小游戏专区</h1>
-        <p class="mt-4 text-base leading-8 text-white/64 sm:text-lg">
+        <h1 class="text-4xl font-black leading-tight sm:text-6xl text-brand-text">小游戏专区</h1>
+        <p class="mt-4 text-base leading-8 text-brand-text-secondary sm:text-lg">
           免下载、低等待、强反馈。把追剧后的三分钟，变成赢奖励的高光时刻。
         </p>
       </div>
       <div
-        class="rounded-3xl border border-[#00bfa5]/25 bg-[#00bfa5]/10 p-5 text-sm text-[#9fffee]"
+        class="rounded-3xl border border-brand-border bg-brand-card p-5 text-sm text-[#9fffee] bg-gradient-to-br from-[#00bfa5]/20 to-[#00bfa5]/5 self-start lg:self-auto"
       >
-        <p class="font-black">当前展示 {{ visibleGames.length }} 款</p>
-        <p class="mt-2 text-[#9fffee]/70">共 {{ totalNumber }} 款小游戏</p>
+        <p class="font-black text-[#00bfa5]">今日在线 86.4 万</p>
+        <p class="mt-2 text-brand-text-secondary">礼包库存每 2 小时刷新</p>
       </div>
     </div>
 
-    <div class="mb-8 flex flex-wrap gap-3">
-      <button
-        v-for="category in visibleGameTypes"
-        :key="category.id"
-        class="min-h-10 whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-60"
-        :class="
-          activeGameType === category.name
-            ? 'border-[#00bfa5] bg-[#00bfa5] text-[#031b20] shadow-[0_0_22px_rgba(0,191,165,0.36)]'
-            : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
-        "
-        :disabled="isInitialLoading || isLoadingMore || isCategoryTransitioning"
-        @click="selectGameType(category.name)"
+    <!-- Loading Skeletons -->
+    <div v-if="loading && gameCategories.length === 0" class="scrollbar-none mb-8 flex gap-3 overflow-x-auto">
+      <div v-for="i in 6" :key="i" class="h-11 w-24 rounded-full bg-brand-card animate-pulse"></div>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error && gameCategories.length === 0" class="mb-8 p-4 rounded-3xl border border-red-500/20 bg-red-500/10 text-sm text-red-400 flex items-center justify-between">
+      <span class="flex items-center gap-2">
+        <span>{{ error }}</span>
+      </span>
+      <button 
+        class="flex items-center gap-1 bg-red-500/20 hover:bg-red-500/30 text-white rounded-full px-4 py-1.5 transition text-xs font-semibold cursor-pointer border-none" 
+        @click="fetchGameTypes"
       >
-        {{ category.name }}
-      </button>
-      <button
-        v-if="hasHiddenGameTypes"
-        class="flex min-h-10 items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-5 py-2.5 text-sm font-black text-white/70 transition hover:text-white"
-        type="button"
-        @click="isCategoryExpanded = !isCategoryExpanded"
-      >
-        {{ isCategoryExpanded ? '收起' : `展开 ${gameTypes.length - COLLAPSED_CATEGORY_COUNT} 个` }}
-        <ChevronUp v-if="isCategoryExpanded" class="h-4 w-4" />
-        <ChevronDown v-else class="h-4 w-4" />
+        <RefreshCw class="h-3 w-3 animate-spin" />
+        重试
       </button>
     </div>
 
-    <p v-if="isGameTypeLoading" class="mb-5 text-sm font-semibold text-white/45">
-      游戏分类加载中...
-    </p>
-    <p v-else-if="gameTypeError" class="mb-5 text-sm font-semibold text-[#ff8bad]">
-      {{ gameTypeError }}
-    </p>
+    <!-- Categories Tabs -->
+    <div v-else class="scrollbar-none mb-8 flex gap-3 overflow-x-auto">
+      <button
+        v-for="category in gameCategories"
+        :key="category"
+        class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition cursor-pointer"
+        :class="
+          activeGameCategory === category
+            ? 'border-[#00bfa5] bg-[#00bfa5] text-[#031b20] shadow-[0_0_22px_rgba(0,191,165,0.36)]'
+            : 'border-brand-border bg-brand-card text-brand-text-secondary hover:text-brand-text'
+        "
+        @click="activeGameCategory = category"
+      >
+        {{ category }}
+      </button>
+    </div>
 
-    <div class="min-h-[620px]">
-      <TransitionPage v-if="isCategoryTransitioning" compact />
-      <template v-else>
-        <div v-if="visibleGames.length > 0" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <GameCard
-            v-for="item in visibleGames"
-            :key="item.id ?? item.title"
-            :item="item"
-            button-text="立即畅玩"
-            class="cursor-pointer"
-            detailed
-            @click="openGameDetail(item)"
-          />
-        </div>
-
-        <EmptyState
-          v-else-if="!isInitialLoading && !isLoadingMore && !gameError"
-          description="当前游戏分类暂时没有可展示内容"
-          tone="green"
-        />
-
-        <div ref="loadMoreTrigger" class="mt-10 flex min-h-12 items-center justify-center">
-          <p
-            v-if="footerText"
-            class="rounded-full border px-5 py-2.5 text-sm font-black"
-            :class="
-              gameError
-                ? 'border-[#ff8bad]/30 bg-[#ff8bad]/10 text-[#ff8bad]'
-                : isInitialLoading || isLoadingMore
-                  ? 'border-[#00bfa5]/30 bg-[#00bfa5]/10 text-[#9fffee]'
-                  : 'border-white/10 bg-white/[0.05] text-white/52'
-            "
-          >
-            {{ footerText }}
-          </p>
-        </div>
-      </template>
+    <!-- Game List -->
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <GameCard
+        v-for="item in filteredGames"
+        :key="item.title"
+        :item="item"
+        button-text="立即畅玩"
+        detailed
+      />
     </div>
   </section>
 </template>

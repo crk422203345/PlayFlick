@@ -8,6 +8,11 @@ import DramaPage from '@/pages/DramaPage.vue'
 import GamesPage from '@/pages/GamesPage.vue'
 import HomePage from '@/pages/HomePage.vue'
 import TransitionPage from '@/pages/TransitionPage.vue'
+import { useTheme } from '@/composables/useTheme'
+
+// Initialize Theme
+const { initTheme } = useTheme()
+initTheme()
 
 const PAGE_TRANSITION_DURATION = 900
 const activeNav = ref<NavItem>('首页')
@@ -71,9 +76,13 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    class="min-h-screen overflow-hidden bg-[linear-gradient(135deg,#0b0d26_0%,#10133a_46%,#0e1138_100%)] text-white"
+    class="min-h-screen overflow-hidden bg-brand-bg text-brand-text transition-colors duration-300"
   >
-    <div class="pointer-events-none fixed inset-0 opacity-70">
+    <!-- Dynamic background glow overlays -->
+    <div 
+      class="pointer-events-none fixed inset-0 transition-opacity duration-300" 
+      style="opacity: var(--glow-opacity)"
+    >
       <div
         class="absolute left-[-10%] top-[-15%] h-[420px] w-[420px] rounded-full bg-[#ff3366]/18 blur-[120px]"
       ></div>
@@ -88,7 +97,7 @@ onBeforeUnmount(() => {
     <AppHeader :nav-items="navItems" :active-nav="activeNav" @change-nav="switchNav" />
 
     <main class="relative z-10">
-      <TransitionPage v-if="isPageTransitioning" />
+      <TransitionPage v-slot:loading v-if="isPageTransitioning" />
       <div v-show="!isPageTransitioning">
         <HomePage
           v-if="activeNav === '首页'"

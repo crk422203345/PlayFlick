@@ -11,49 +11,50 @@ import { coreValues } from '@/data/playflick'
       <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16">
         <Gem class="h-8 w-8 text-[#ff6f98]" />
       </div>
-      <h1 class="max-w-3xl text-4xl font-black leading-tight sm:text-6xl">
+      <h1 class="max-w-3xl text-4xl font-black leading-tight sm:text-6xl text-brand-text">
         让每一次打开，都有好剧与好玩相遇
       </h1>
-      <p class="mt-6 max-w-2xl text-base leading-8 text-white/66 sm:text-lg">
+      <p class="mt-6 max-w-2xl text-base leading-8 text-brand-text-secondary sm:text-lg">
         PlayFlick
         是面向新一代线上娱乐用户的综合平台，把中国微短剧的高能叙事与休闲小游戏的即时反馈融合在一起。我们相信娱乐应该轻巧、可靠、漂亮，并且随时能带来一点点惊喜。
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <button
-          class="rounded-full bg-[#ff3366] px-6 py-3 text-sm font-black text-white shadow-[0_0_30px_rgba(255,51,102,0.38)]"
+          class="rounded-full bg-[#ff3366] px-6 py-3 text-sm font-black text-white shadow-[0_0_30px_rgba(255,51,102,0.38)] border-none cursor-pointer"
         >
           了解品牌故事
         </button>
         <button
-          class="rounded-full border border-white/12 bg-white/[0.05] px-6 py-3 text-sm font-black text-white/72"
+          class="rounded-full border border-brand-border bg-brand-card px-6 py-3 text-sm font-black text-brand-text-secondary hover:text-brand-text hover:bg-brand-hover cursor-pointer"
         >
           商务合作
         </button>
       </div>
     </div>
 
+    <!-- Orbit Animation -->
     <div class="relative min-h-[430px]">
-      <div class="brand-orbit absolute inset-8 rounded-full border border-white/10"></div>
+      <div class="brand-orbit absolute inset-8 rounded-full border border-brand-border"></div>
       <div
-        class="absolute left-2 top-2 rounded-[32px] border border-[#ff3366]/25 bg-[#ff3366]/12 p-5 shadow-[0_0_45px_rgba(255,51,102,0.18)] backdrop-blur-md"
+        class="absolute left-2 top-2 rounded-[32px] border border-[#ff3366]/25 bg-[#ff3366]/12 p-5 shadow-[0_0_45px_rgba(255,51,102,0.18)] backdrop-blur-md text-white"
       >
         <Clapperboard class="h-10 w-10 text-[#ff6f98]" />
         <p class="mt-3 text-sm font-black">微短剧引擎</p>
       </div>
       <div
-        class="absolute -right-2 top-28 rounded-[32px] border border-[#00bfa5]/25 bg-[#00bfa5]/12 p-5 shadow-[0_0_45px_rgba(0,191,165,0.18)] backdrop-blur-md"
+        class="absolute -right-2 top-28 rounded-[32px] border border-[#00bfa5]/25 bg-[#00bfa5]/12 p-5 shadow-[0_0_45px_rgba(0,191,165,0.18)] backdrop-blur-md text-white"
       >
         <Gamepad2 class="h-10 w-10 text-[#00e0c5]" />
         <p class="mt-3 text-sm font-black">游戏大厅</p>
       </div>
       <div
-        class="absolute -bottom-2 left-1/2 w-[50%] -translate-x-1/2 rounded-[24px] border border-white/10 bg-white/[0.08] p-3 shadow-2xl shadow-black/35 backdrop-blur-xl"
+        class="absolute -bottom-2 left-1/2 w-[50%] -translate-x-1/2 rounded-[24px] border border-brand-border bg-brand-card/80 p-3 shadow-2xl shadow-brand-text/5 backdrop-blur-xl"
       >
         <div
           class="relative mx-auto aspect-square max-w-[160px] rounded-[20px] bg-[radial-gradient(circle_at_35%_25%,#ff6f98_0%,#7c4dff_38%,#00bfa5_100%)] p-3 shadow-[0_30px_100px_rgba(124,77,255,0.25)]"
         >
           <div
-            class="grid h-full w-full place-items-center rounded-[16px] border border-white/20 bg-[#080b2c]/70"
+            class="grid h-full w-full place-items-center rounded-[16px] border border-white/20 bg-[#080b2c]/70 text-white"
           >
             <div class="text-center">
               <div
@@ -70,18 +71,19 @@ import { coreValues } from '@/data/playflick'
     </div>
   </section>
 
+  <!-- Core Values -->
   <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <article
         v-for="item in coreValues"
         :key="item.title"
-        class="rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+        class="rounded-3xl border border-brand-border bg-brand-card p-6 shadow-xl shadow-brand-text/5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl"
       >
-        <div class="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-white/[0.08]">
+        <div class="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-brand-hover">
           <component :is="item.icon" class="h-7 w-7 text-[#ff6f98]" />
         </div>
-        <h3 class="text-xl font-black">{{ item.title }}</h3>
-        <p class="mt-3 text-sm leading-7 text-white/62">{{ item.desc }}</p>
+        <h3 class="text-xl font-black text-brand-text">{{ item.title }}</h3>
+        <p class="mt-3 text-sm leading-7 text-brand-text-secondary">{{ item.desc }}</p>
       </article>
     </div>
   </section>

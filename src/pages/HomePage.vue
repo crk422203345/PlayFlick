@@ -391,7 +391,7 @@ onBeforeUnmount(() => {
 <template>
   <section class="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-6 lg:grid-cols-[1.55fr_0.85fr] lg:px-8 lg:py-10">
     <article
-      class="group relative min-h-[430px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] shadow-2xl shadow-black/30">
+      class="group relative min-h-[430px] overflow-hidden rounded-[28px] border border-brand-border bg-brand-card shadow-2xl shadow-brand-text/5">
       <img v-if="activeHero" :src="activeHero.image" :alt="activeHero.title"
         class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
       <div
@@ -403,19 +403,19 @@ onBeforeUnmount(() => {
             class="rounded-full bg-[#ff3366] px-3 py-1 text-xs font-black text-white shadow-[0_0_20px_rgba(255,51,102,0.5)]">
             {{ activeHero.tag }}
           </span>
-          <span v-if="bannerLoading" class="text-xs font-semibold text-white/52">加载轮播中...</span>
+          <span v-if="bannerLoading" class="text-xs font-semibold text-brand-text-secondary">加载轮播中...</span>
           <span v-else-if="bannerError" class="text-xs font-semibold text-[#ff8bad]">{{
             bannerError
           }}</span>
-          <span class="flex items-center gap-1 text-sm font-semibold text-white/72">
+          <span class="flex items-center gap-1 text-sm font-semibold text-brand-text-secondary">
             <Flame class="h-4 w-4 text-[#ffbf47]" />
             {{ activeHero.views }}
           </span>
         </div>
-        <h1 class="max-w-xl text-4xl font-black leading-tight tracking-normal sm:text-6xl">
+        <h1 class="max-w-xl text-4xl font-black leading-tight tracking-normal sm:text-6xl text-white">
           {{ activeHero.title }}
         </h1>
-        <p class="mt-4 max-w-lg text-base leading-8 text-white/72 sm:text-lg">
+        <p class="mt-4 max-w-lg text-base leading-8 text-white/90 sm:text-lg">
           {{ activeHero.desc }}
         </p>
         <div class="mt-7 flex flex-wrap items-center gap-3">
@@ -426,14 +426,9 @@ onBeforeUnmount(() => {
             <Play class="h-4 w-4 fill-white" />
             立即观看
           </button>
-          <!-- <button
-            class="rounded-full border border-white/15 bg-white/[0.06] px-6 py-3 text-sm font-bold text-white/82 backdrop-blur-md transition hover:border-white/30 hover:text-white"
-          >
-            加入片单
-          </button> -->
         </div>
-        <div class="mt-8 flex gap-2">
-          <button v-for="(_, index) in bannerSlides" :key="index" class="h-2.5 rounded-full transition-all duration-300"
+        <div class="mt-8 flex gap-2" v-if="bannerSlides.length > 1">
+          <button v-for="(_, index) in bannerSlides" :key="index" class="h-2.5 rounded-full transition-all duration-300 border-none cursor-pointer"
             :class="activeHeroIndex === index
               ? 'w-9 bg-[#ff3366] shadow-[0_0_14px_#ff3366]'
               : 'w-2.5 bg-white/35'
@@ -442,18 +437,18 @@ onBeforeUnmount(() => {
       </div>
       <div v-else class="relative flex h-full min-h-[430px] max-w-2xl flex-col justify-end p-6 sm:p-10">
         <div class="mb-4 flex flex-wrap items-center gap-3">
-          <span class="text-xs font-semibold text-white/52">
+          <span class="text-xs font-semibold text-brand-text-secondary">
             {{ bannerLoading ? '轮播图加载中...' : bannerError || '暂无轮播图' }}
           </span>
         </div>
-        <h1 class="max-w-xl text-4xl font-black leading-tight tracking-normal sm:text-6xl">
+        <h1 class="max-w-xl text-4xl font-black leading-tight tracking-normal sm:text-6xl text-brand-text">
           PlayFlick
         </h1>
       </div>
     </article>
 
     <article
-      class="relative min-h-[360px] overflow-hidden rounded-[28px] border border-[#00bfa5]/30 bg-[#071f2e]/70 p-6 shadow-[0_0_45px_rgba(0,191,165,0.16)] backdrop-blur-md sm:p-8 lg:min-h-full">
+      class="relative min-h-[360px] overflow-hidden rounded-[28px] border border-[#00bfa5]/30 bg-brand-card p-6 shadow-[0_0_45px_rgba(0,191,165,0.08)] backdrop-blur-md sm:p-8 lg:min-h-full transition-colors duration-300">
       <img src="https://images.unsplash.com/photo-1560253023-3ec5d502959f?auto=format&fit=crop&w=900&q=86" alt="小游戏宣传"
         class="absolute inset-0 h-full w-full object-cover opacity-54" />
       <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,12,31,0.22),rgba(5,12,31,0.9))]"></div>
@@ -466,8 +461,8 @@ onBeforeUnmount(() => {
         </div>
         <div>
           <Gamepad2 class="mb-5 h-12 w-12 text-[#00e0c5]" />
-          <h2 class="text-3xl font-black leading-tight sm:text-4xl">小游戏宇宙<br />一键开玩</h2>
-          <p class="mt-4 max-w-sm text-sm leading-7 text-white/72">
+          <h2 class="text-3xl font-black leading-tight sm:text-4xl text-white">小游戏宇宙<br />一键开玩</h2>
+          <p class="mt-4 max-w-sm text-sm leading-7 text-white/80">
             消除、竞速、塔防、冒险随时切换，低门槛高爽感，追剧间隙也能赢奖励。
           </p>
           <button
@@ -485,15 +480,15 @@ onBeforeUnmount(() => {
     <div class="mb-6 flex items-end justify-between gap-4">
       <div>
         <p class="text-sm font-bold text-[#ff6f98]">DRAMA PICKS</p>
-        <p v-if="featuredDramaLoading" class="mt-2 text-sm font-semibold text-white/45">
+        <p v-if="featuredDramaLoading" class="mt-2 text-sm font-semibold text-brand-text-secondary animate-pulse">
           短剧推荐加载中...
         </p>
         <p v-else-if="featuredDramaError" class="mt-2 text-sm font-semibold text-[#ff8bad]">
           {{ featuredDramaError }}
         </p>
-        <h2 class="mt-2 text-2xl font-black sm:text-4xl">短剧推荐</h2>
+        <h2 class="mt-2 text-2xl font-black sm:text-4xl text-brand-text">短剧推荐</h2>
       </div>
-      <button class="hidden items-center gap-1 text-sm font-bold text-white/60 transition hover:text-white sm:flex"
+      <button class="hidden items-center gap-1 text-sm font-bold text-brand-text-secondary transition hover:text-brand-text sm:flex border-none bg-transparent cursor-pointer"
         @click="emit('navigate-dramas')">
         查看全部
         <ChevronRight class="h-4 w-4" />
@@ -514,8 +509,8 @@ onBeforeUnmount(() => {
     <div class="mb-6 flex items-end justify-between gap-4">
       <div>
         <p class="text-sm font-bold text-[#00e0c5]">GAME HOTSPOT</p>
-        <h2 class="mt-2 text-2xl font-black sm:text-4xl">热门小游戏</h2>
-        <p v-if="hotGameLoading" class="mt-2 text-sm font-semibold text-white/45">
+        <h2 class="mt-2 text-2xl font-black sm:text-4xl text-brand-text">热门小游戏</h2>
+        <p v-if="hotGameLoading" class="mt-2 text-sm font-semibold text-brand-text-secondary animate-pulse">
           热门小游戏加载中...
         </p>
         <p v-else-if="hotGameError" class="mt-2 text-sm font-semibold text-[#ff8bad]">
@@ -545,7 +540,7 @@ onBeforeUnmount(() => {
             <Crown class="h-8 w-8 text-[#ffd37a]" />
           </div>
           <div>
-            <h2 class="text-2xl font-black sm:text-4xl">开通会员 尊享特权</h2>
+            <h2 class="text-2xl font-black sm:text-4xl text-white">开通会员 尊享特权</h2>
             <p class="mt-3 max-w-2xl text-sm leading-7 text-white/76 sm:text-base">
               解锁短剧抢先看、无广告播放、专属游戏礼包、会员身份标识与高清沉浸体验。
             </p>
@@ -563,8 +558,8 @@ onBeforeUnmount(() => {
   <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
     <div class="mb-7 flex flex-wrap items-center gap-3">
       <Trophy class="h-8 w-8 text-[#ffbf47]" />
-      <h2 class="text-2xl font-black sm:text-4xl">今日热播榜</h2>
-      <span v-if="hotRankingLoading" class="text-sm font-semibold text-white/45">榜单加载中...</span>
+      <h2 class="text-2xl font-black sm:text-4xl text-brand-text">今日热播榜</h2>
+      <span v-if="hotRankingLoading" class="text-sm font-semibold text-brand-text-secondary animate-pulse">榜单加载中...</span>
       <span v-else-if="hotRankingError" class="text-sm font-semibold text-[#ff8bad]">{{
         hotRankingError
       }}</span>
@@ -583,8 +578,8 @@ onBeforeUnmount(() => {
 
   <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
     <div class="mb-7">
-      <h2 class="text-2xl font-black sm:text-4xl">精选分类</h2>
-      <p v-if="visualCategoryLoading" class="mt-2 text-sm font-semibold text-white/45">
+      <h2 class="text-2xl font-black sm:text-4xl text-brand-text">精选分类</h2>
+      <p v-if="visualCategoryLoading" class="mt-2 text-sm font-semibold text-brand-text-secondary animate-pulse">
         精选分类加载中...
       </p>
       <p v-else-if="visualCategoryError" class="mt-2 text-sm font-semibold text-[#ff8bad]">
@@ -593,12 +588,12 @@ onBeforeUnmount(() => {
     </div>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
       <button v-for="item in visualCategoryList" :key="item.id ?? item.name"
-        class="group relative aspect-[3/5] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.05] shadow-xl shadow-black/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+        class="group relative aspect-[3/5] overflow-hidden rounded-3xl border border-brand-border bg-brand-card shadow-xl shadow-brand-text/5 transition-all duration-300 hover:scale-105 hover:shadow-2xl border-none cursor-pointer"
         @click="openTvHome">
         <img :src="item.image" :alt="item.name"
           class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-        <div class="absolute inset-0 bg-gradient-to-t from-[#07091f] via-[#07091f]/10 to-transparent"></div>
-        <span class="absolute inset-x-0 bottom-5 text-center text-xl font-black">{{
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        <span class="absolute inset-x-0 bottom-5 text-center text-xl font-black text-white">{{
           item.name
         }}</span>
       </button>
@@ -610,14 +605,14 @@ onBeforeUnmount(() => {
       <article
         v-for="(item, index) in homeOperationCards"
         :key="item.title"
-        class="group cursor-pointer overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl shadow-black/20 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+        class="group cursor-pointer overflow-hidden rounded-3xl border border-brand-border bg-brand-card p-6 shadow-xl shadow-brand-text/5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl"
         @click="handleOperationCardClick(index)"
       >
         <div :class="item.color" class="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br shadow-lg">
           <component :is="item.icon" class="h-7 w-7 text-white" />
         </div>
-        <h3 class="text-xl font-black">{{ item.title }}</h3>
-        <p class="mt-3 text-sm leading-7 text-white/62">{{ item.desc }}</p>
+        <h3 class="text-xl font-black text-brand-text">{{ item.title }}</h3>
+        <p class="mt-3 text-sm leading-7 text-brand-text-secondary">{{ item.desc }}</p>
       </article>
     </div>
   </section>

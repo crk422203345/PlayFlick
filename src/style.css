@@ -1,5 +1,55 @@
 @import 'tailwindcss';
 
+:root {
+  /* Light Theme Variables */
+  --bg-color: #f8fafc;
+  --bg-color-secondary: #f1f5f9;
+  --text-color: #0f172a;
+  --text-color-secondary: #475569;
+  --primary-color: #ff3366;
+  --border-color: rgba(15, 23, 42, 0.08);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --header-bg: rgba(248, 250, 252, 0.72);
+  --footer-bg: #f1f5f9;
+  --link-color: #ff3366;
+  --button-bg: #ff3366;
+  --button-text: #ffffff;
+  --hover-bg: rgba(15, 23, 42, 0.04);
+  --glow-opacity: 0.18;
+}
+
+[data-theme="dark"] {
+  /* Dark Theme Variables */
+  --bg-color: #0b0d26;
+  --bg-color-secondary: #10133a;
+  --text-color: #ffffff;
+  --text-color-secondary: rgba(255, 255, 255, 0.68);
+  --primary-color: #ff3366;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.06);
+  --header-bg: rgba(11, 13, 38, 0.72);
+  --footer-bg: #080a21;
+  --link-color: #ff6f98;
+  --button-bg: #ff3366;
+  --button-text: #ffffff;
+  --hover-bg: rgba(255, 255, 255, 0.08);
+  --glow-opacity: 0.7;
+}
+
+@theme {
+  /* Tailwind v4 Theme Color Mapping */
+  --color-brand-bg: var(--bg-color);
+  --color-brand-bg-secondary: var(--bg-color-secondary);
+  --color-brand-text: var(--text-color);
+  --color-brand-text-secondary: var(--text-color-secondary);
+  --color-brand-border: var(--border-color);
+  --color-brand-card: var(--card-bg);
+  --color-brand-header: var(--header-bg);
+  --color-brand-footer: var(--footer-bg);
+  --color-brand-primary: var(--primary-color);
+  --color-brand-hover: var(--hover-bg);
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -7,7 +57,9 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background: #0b0d26;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .scrollbar-none::-webkit-scrollbar {

@@ -193,19 +193,19 @@ onBeforeUnmount(() => {
       <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16">
         <Clapperboard class="h-8 w-8 text-[#ff6f98]" />
       </div>
-      <h1 class="text-4xl font-black leading-tight sm:text-6xl">短剧专区</h1>
-      <p class="mt-4 text-base leading-8 text-white/64 sm:text-lg">
+      <h1 class="text-4xl font-black leading-tight sm:text-6xl text-brand-text">短剧专区</h1>
+      <p class="mt-4 text-base leading-8 text-brand-text-secondary sm:text-lg">
         从都市逆袭到甜宠古装，PlayFlick 用高密度剧情满足你的碎片化追剧时刻。
       </p>
     </div>
 
     <div class="scrollbar-none mb-8 flex gap-3 overflow-x-auto">
       <button
-        class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition"
+        class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition cursor-pointer"
         :class="
           activeClassifyId === ''
             ? 'border-[#ff3366] bg-[#ff3366] text-white shadow-[0_0_22px_rgba(255,51,102,0.36)]'
-            : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
+            : 'border-brand-border bg-brand-card text-brand-text-secondary hover:text-brand-text'
         "
         :disabled="isCategoryTransitioning || dramaLoading"
         @click="selectDramaCategory('')"
@@ -215,18 +215,18 @@ onBeforeUnmount(() => {
       <button
         v-for="category in dramaCategories"
         :key="category.classificationId"
-        class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition"
+        class="whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-black transition cursor-pointer"
         :class="
           activeClassifyId === category.classifyId
             ? 'border-[#ff3366] bg-[#ff3366] text-white shadow-[0_0_22px_rgba(255,51,102,0.36)]'
-            : 'border-white/10 bg-white/[0.05] text-white/60 hover:text-white'
+            : 'border-brand-border bg-brand-card text-brand-text-secondary hover:text-brand-text'
         "
         :disabled="isCategoryTransitioning || dramaLoading"
         @click="selectDramaCategory(category.classifyId)"
       >
         {{ category.classificationName }}
       </button>
-      <span v-if="dramaCategoryLoading" class="self-center text-sm font-semibold text-white/45">
+      <span v-if="dramaCategoryLoading" class="self-center text-sm font-semibold text-brand-text-secondary animate-pulse">
         分类加载中...
       </span>
       <span v-else-if="dramaCategoryError" class="self-center text-sm font-semibold text-[#ff8bad]">
@@ -239,7 +239,7 @@ onBeforeUnmount(() => {
     </p>
 
     <div class="min-h-[620px]">
-      <TransitionPage v-if="isCategoryTransitioning" compact />
+      <TransitionPage v-slot:loading v-if="isCategoryTransitioning" compact />
       <template v-else>
         <div v-if="dramaList.length > 0" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
           <DramaCard
@@ -258,8 +258,8 @@ onBeforeUnmount(() => {
           tone="pink"
         />
 
-        <div class="py-8 text-center text-sm font-semibold text-white/50">
-          <span v-if="dramaLoading">正在加载数据...</span>
+        <div class="py-8 text-center text-sm font-semibold text-brand-text-secondary">
+          <span v-if="dramaLoading" class="animate-pulse">正在加载数据...</span>
           <span v-else-if="dramaList.length > 0 && totalCount > 0 && dramaList.length >= totalCount"
             >没有更多数据了</span
           >
