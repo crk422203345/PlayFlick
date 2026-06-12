@@ -26,8 +26,8 @@ withDefaults(
             y1="62"
             x1="0"
           >
-            <stop class="s-xJBuHA073rTt" stop-color="#973BED"></stop>
-            <stop class="s-xJBuHA073rTt" stop-color="#007CFF" offset="1"></stop>
+            <stop class="s-xJBuHA073rTt" stop-color="var(--loader-color-1-start)"></stop>
+            <stop class="s-xJBuHA073rTt" stop-color="var(--loader-color-1-end)" offset="1"></stop>
           </linearGradient>
           <linearGradient
             id="c"
@@ -38,8 +38,8 @@ withDefaults(
             y1="64"
             x1="0"
           >
-            <stop class="s-xJBuHA073rTt" stop-color="#FFC800"></stop>
-            <stop class="s-xJBuHA073rTt" stop-color="#F0F" offset="1"></stop>
+            <stop class="s-xJBuHA073rTt" stop-color="var(--loader-color-2-start)"></stop>
+            <stop class="s-xJBuHA073rTt" stop-color="var(--loader-color-2-end)" offset="1"></stop>
             <animateTransform
               repeatCount="indefinite"
               keySplines=".42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1;.42,0,.58,1"
@@ -59,8 +59,8 @@ withDefaults(
             y1="62"
             x1="0"
           >
-            <stop class="s-xJBuHA073rTt" stop-color="#00E0ED"></stop>
-            <stop class="s-xJBuHA073rTt" stop-color="#00DA72" offset="1"></stop>
+            <stop class="s-xJBuHA073rTt" stop-color="var(--loader-color-3-start)"></stop>
+            <stop class="s-xJBuHA073rTt" stop-color="var(--loader-color-3-end)" offset="1"></stop>
           </linearGradient>
         </defs>
       </svg>

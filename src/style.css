@@ -16,6 +16,14 @@
   --button-text: #ffffff;
   --hover-bg: rgba(15, 23, 42, 0.04);
   --glow-opacity: 0.18;
+
+  /* Page Transition Loader Colors */
+  --loader-color-1-start: #ff3366;
+  --loader-color-1-end: #7c4dff;
+  --loader-color-2-start: #ff9a3d;
+  --loader-color-2-end: #ff3366;
+  --loader-color-3-start: #00e0ed;
+  --loader-color-3-end: #00bfa5;
 }
 
 [data-theme="dark"] {
@@ -34,6 +42,14 @@
   --button-text: #ffffff;
   --hover-bg: rgba(255, 255, 255, 0.08);
   --glow-opacity: 0.7;
+
+  /* Page Transition Loader Colors */
+  --loader-color-1-start: #ff4777;
+  --loader-color-1-end: #8b62ff;
+  --loader-color-2-start: #ffb066;
+  --loader-color-2-end: #ff4777;
+  --loader-color-3-start: #33e7f2;
+  --loader-color-3-end: #14dcc3;
 }
 
 @theme {
