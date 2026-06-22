@@ -11,6 +11,12 @@ export function useTheme() {
     theme.value = newTheme
     document.documentElement.setAttribute('data-theme', newTheme)
     localStorage.setItem('playflick_theme', newTheme)
+
+    // Dynamic favicon updates on theme toggle
+    const link = document.querySelector("link[rel*='icon']") as HTMLLinkElement | null
+    if (link) {
+      link.href = newTheme === 'dark' ? '/favicon-dark.svg' : '/favicon-light.svg'
+    }
   }
 
   const toggleTheme = (event?: MouseEvent) => {
