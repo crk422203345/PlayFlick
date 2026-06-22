@@ -607,16 +607,19 @@ onBeforeUnmount(() => {
         {{ visualCategoryError }}
       </p>
     </div>
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-4 lg:gap-5">
       <button v-for="item in visualCategoryList" :key="item.id ?? item.name"
-        class="group relative aspect-[3/5] overflow-hidden rounded-3xl border border-brand-border bg-brand-card shadow-xl shadow-brand-text/5 transition-all duration-300 hover:scale-105 hover:shadow-2xl border-none cursor-pointer"
+        class="category-card group aspect-[16/10] cursor-pointer"
         @click="openTvHome">
         <img :src="item.image" :alt="item.name"
-          class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-        <div class="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.45)_0%,rgba(0,0,0,0)_40%,rgba(0,0,0,0.75)_100%)]"></div>
-        <span class="absolute inset-x-0 bottom-5 text-center text-xl font-black text-white">{{
-          item.name
-        }}</span>
+          class="absolute inset-0 h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.06]"
+          loading="lazy" />
+        <div class="category-mask"></div>
+        <div class="absolute inset-x-0 bottom-0 z-10 p-4 text-left">
+          <span class="block text-[15px] font-bold tracking-tight text-white/90 group-hover:text-white transition-colors duration-200">
+            {{ item.name }}
+          </span>
+        </div>
       </button>
     </div>
   </section>
@@ -638,3 +641,64 @@ onBeforeUnmount(() => {
     </div>
   </section>
 </template>
+
+<style scoped>
+/* ============================================================
+   精选分类卡片 — 极致视觉优化
+   ============================================================ */
+.category-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem; /* rounded-2xl */
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 10px var(--shadow-color);
+  border-style: none; /* overrides default button border */
+}
+
+/* 渐变提亮光影底层 */
+.category-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* 柔和的白色上射微光，从底部发散 */
+  background: radial-gradient(circle at 35% 120%, rgba(255, 255, 255, 0.16) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 深色模式下的提亮色彩微调 — 注入红粉品牌光晕 */
+[data-theme="dark"] .category-card::after {
+  background: radial-gradient(circle at 35% 120%, rgba(255, 51, 102, 0.18) 0%, transparent 70%);
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-color-strong);
+  box-shadow: 
+    0 12px 24px var(--shadow-color-strong),
+    0 0 16px rgba(255, 51, 102, 0.08); /* 品牌微发光 */
+}
+
+.category-card:hover::after {
+  opacity: 1;
+}
+
+/* 极清晰的斜向遮罩层，保障左下角文字100%可读性 */
+.category-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(35deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.3) 45%, transparent 100%);
+  z-index: 1;
+  transition: opacity 0.35s ease;
+}
+
+/* hover 稍微调亮整体背景，让卡片有“揭开面纱”的通透感 */
+.category-card:hover .category-mask {
+  opacity: 0.82;
+}
+</style>
+
