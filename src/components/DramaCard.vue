@@ -15,52 +15,69 @@ withDefaults(
 
 <template>
   <article
-    class="group overflow-hidden rounded-3xl border border-brand-border bg-brand-card shadow-xl shadow-brand-text/5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#ff3366]/15"
+    class="group relative overflow-hidden rounded-2xl border border-brand-border bg-brand-card shadow-md shadow-brand-shadow backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-shadow hover:border-brand-border-strong"
   >
+    <!-- Image -->
     <div class="relative aspect-[3/4] overflow-hidden">
       <img
         :src="item.image"
         :alt="item.title"
-        class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+        class="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.06]"
+        loading="lazy"
       />
+
+      <!-- Gradient overlay -->
       <div
-        v-if="!compact"
-        class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+        class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"
       ></div>
-      <span
-        v-if="!compact"
-        class="absolute left-4 top-4 rounded-full bg-[#ff3366] px-3 py-1 text-xs font-black text-white"
-      >
-        {{ item.type }}
-      </span>
-      <button
-        v-else
-        class="absolute inset-0 grid place-items-center bg-black/0 opacity-0 transition group-hover:bg-black/30 group-hover:opacity-100 border-none cursor-pointer"
-      >
+
+      <!-- Category badge (non-compact) -->
+      <div v-if="!compact" class="absolute left-3 top-3">
         <span
-          class="grid h-14 w-14 place-items-center rounded-full bg-[#ff3366] shadow-[0_0_28px_rgba(255,51,102,0.45)]"
+          class="inline-flex items-center rounded-lg bg-[#ff3366] px-2.5 py-1 text-[10px] font-bold text-white tracking-wide uppercase shadow-md"
         >
-          <Play class="h-6 w-6 fill-white text-white" />
-        </span>
-      </button>
-    </div>
-    <div class="p-4 transition-colors duration-300">
-      <h3 :class="compact ? 'text-base' : 'text-lg'" class="line-clamp-1 font-black text-brand-text">
-        {{ item.title }}
-      </h3>
-      <div v-if="compact" class="mt-3 flex items-center justify-between gap-3">
-        <span class="flex items-center gap-1 text-xs text-brand-text-secondary">
-          <Play class="h-3.5 w-3.5 fill-[#ff6f98] text-[#ff6f98]" />
-          {{ item.views }}
-        </span>
-        <span class="rounded-full bg-[#ff3366]/15 px-2.5 py-1 text-xs font-bold text-[#ff8bad]">
           {{ item.type }}
         </span>
       </div>
-      <p v-else class="mt-2 flex items-center gap-1 text-sm text-brand-text-secondary">
-        <Play class="h-3.5 w-3.5 fill-[#ff6f98] text-[#ff6f98]" />
-        {{ item.views }} 播放
-      </p>
+
+      <!-- Play overlay (compact) -->
+      <button
+        v-else
+        class="absolute inset-0 grid place-items-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/28 group-hover:opacity-100 border-none cursor-pointer"
+      >
+        <span
+          class="grid h-12 w-12 place-items-center rounded-full bg-white/90 shadow-xl transition-transform duration-200 group-hover:scale-110"
+        >
+          <Play class="h-5 w-5 fill-[#ff3366] text-[#ff3366] translate-x-0.5" />
+        </span>
+      </button>
+
+      <!-- Bottom gradient with title (non-compact) -->
+      <div v-if="!compact" class="absolute bottom-0 left-0 right-0 p-4">
+        <p class="line-clamp-2 text-[13px] font-bold leading-tight text-white/90">
+          {{ item.title }}
+        </p>
+        <p class="mt-1.5 flex items-center gap-1 text-[11px] text-white/60">
+          <Play class="h-3 w-3 fill-white/60 text-white/60" />
+          {{ item.views }} 播放
+        </p>
+      </div>
+    </div>
+
+    <!-- Card body (compact mode only) -->
+    <div v-if="compact" class="p-3">
+      <h3 class="line-clamp-1 text-[13px] font-semibold leading-snug text-brand-text">
+        {{ item.title }}
+      </h3>
+      <div class="mt-2 flex items-center justify-between gap-2">
+        <span class="flex items-center gap-1 text-[11px] text-brand-text-secondary">
+          <Play class="h-3 w-3 fill-[#ff6f98] text-[#ff6f98]" />
+          {{ item.views }}
+        </span>
+        <span class="rounded-md bg-[#ff3366]/10 px-2 py-0.5 text-[10px] font-semibold text-[#ff6f98] tracking-wide">
+          {{ item.type }}
+        </span>
+      </div>
     </div>
   </article>
 </template>

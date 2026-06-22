@@ -16,18 +16,18 @@ withDefaults(
 </script>
 
 <template>
-  <div class="flex min-h-[360px] flex-col items-center justify-center text-center">
+  <div class="flex min-h-[360px] flex-col items-center justify-center text-center px-4">
     <div
-      class="grid h-20 w-20 place-items-center rounded-3xl border"
+      class="grid h-18 w-18 place-items-center rounded-2xl border"
       :class="
         tone === 'pink'
-          ? 'border-[#ff3366]/25 bg-[#ff3366]/10 text-[#ff8bad]'
-          : 'border-[#00bfa5]/25 bg-[#00bfa5]/10 text-[#9fffee]'
+          ? 'border-[#ff3366]/20 bg-[#ff3366]/8 text-[#ff8bad]'
+          : 'border-[#00bfa5]/20 bg-[#00bfa5]/8 text-[#00bfa5]'
       "
     >
-      <Inbox class="h-10 w-10" />
+      <Inbox class="h-9 w-9" />
     </div>
-    <h3 class="mt-5 text-2xl font-black text-white">{{ title }}</h3>
-    <p class="mt-2 max-w-sm text-sm leading-6 text-white/52">{{ description }}</p>
+    <h3 class="mt-4 text-xl font-bold text-brand-text">{{ title }}</h3>
+    <p class="mt-2 max-w-xs text-sm leading-6 text-brand-text-secondary">{{ description }}</p>
   </div>
 </template>

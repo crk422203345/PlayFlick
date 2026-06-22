@@ -10,19 +10,37 @@ defineProps<{
 
 <template>
   <article
-    class="relative min-h-32 overflow-visible rounded-3xl border border-brand-border bg-brand-card p-5 pl-20 shadow-xl shadow-brand-text/5 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:border-[#ff3366]/40 hover:shadow-2xl"
+    class="rank-card group relative overflow-hidden rounded-2xl border border-brand-border bg-brand-card p-6 shadow-md shadow-brand-shadow backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-border-strong hover:shadow-lg"
   >
-    <span class="rank-number absolute left-2 top-2 text-8xl font-black leading-none">{{
-      rank
-    }}</span>
-    <div class="relative transition-colors duration-300">
-      <span class="rounded-full bg-brand-hover px-3 py-1 text-xs font-bold text-brand-text-secondary">{{
-        item.type
-      }}</span>
-      <h3 class="mt-4 text-lg font-black text-brand-text">{{ item.title }}</h3>
-      <p class="mt-3 flex items-center gap-2 text-sm text-brand-text-secondary">
-        <Flame class="h-4 w-4 text-[#ff3366]" />
-        {{ item.heat }} 热度
+    <!-- Rank number backdrop -->
+    <span
+      class="rank-number pointer-events-none absolute left-4 top-2.5 select-none font-black leading-none"
+      :class="rank <= 3 ? 'text-[88px]' : 'text-[80px]'"
+    >{{ rank }}</span>
+
+    <!-- Gold shimmer for top 3 -->
+    <div
+      v-if="rank <= 3"
+      class="pointer-events-none absolute right-4 top-4 h-16 w-16 rounded-full opacity-30 blur-2xl"
+      :class="rank === 1 ? 'bg-yellow-400' : rank === 2 ? 'bg-slate-400' : 'bg-amber-600'"
+    ></div>
+
+    <div class="relative pl-16">
+      <!-- Type badge -->
+      <span
+        class="inline-flex items-center rounded-lg border border-brand-border px-2.5 py-0.5 text-[10px] font-semibold text-brand-text-secondary tracking-wide uppercase"
+      >{{ item.type }}</span>
+
+      <!-- Title -->
+      <h3 class="mt-3 line-clamp-1 text-[15px] font-bold leading-snug text-brand-text group-hover:text-brand-primary transition-colors duration-200">
+        {{ item.title }}
+      </h3>
+
+      <!-- Heat -->
+      <p class="mt-2.5 flex items-center gap-1.5 text-[12px] text-brand-text-secondary">
+        <Flame class="h-3.5 w-3.5 text-[#ff6f98]" />
+        <span>{{ item.heat }}</span>
+        <span class="text-brand-text-tertiary">热度</span>
       </p>
     </div>
   </article>
@@ -30,10 +48,23 @@ defineProps<{
 
 <style scoped>
 .rank-number {
-  color: rgba(255, 51, 102, 0.12);
-  text-shadow:
-    0 8px 22px rgba(255, 51, 102, 0.28),
-    0 1px 0 rgba(255, 255, 255, 0.2);
-  -webkit-text-stroke: 1px rgba(255, 111, 152, 0.45);
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--border-color-strong);
+  transition: -webkit-text-stroke-color 0.3s ease;
+}
+
+.rank-card:hover .rank-number {
+  -webkit-text-stroke-color: rgba(255, 51, 102, 0.22);
+}
+
+/* Gold / Silver / Bronze for top 3 */
+.rank-card:nth-child(1) .rank-number {
+  -webkit-text-stroke-color: rgba(234, 179, 8, 0.3);
+}
+.rank-card:nth-child(2) .rank-number {
+  -webkit-text-stroke-color: rgba(148, 163, 184, 0.3);
+}
+.rank-card:nth-child(3) .rank-number {
+  -webkit-text-stroke-color: rgba(180, 120, 60, 0.3);
 }
 </style>

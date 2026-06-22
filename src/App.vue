@@ -76,21 +76,27 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    class="min-h-screen overflow-hidden bg-brand-bg text-brand-text transition-colors duration-300"
+    class="noise-overlay min-h-screen overflow-hidden bg-brand-bg text-brand-text transition-colors duration-300"
   >
-    <!-- Dynamic background glow overlays -->
-    <div 
-      class="pointer-events-none fixed inset-0 transition-opacity duration-300" 
+    <!-- Ambient background glow — cinematic depth -->
+    <div
+      class="pointer-events-none fixed inset-0 overflow-hidden"
       style="opacity: var(--glow-opacity)"
     >
+      <!-- Primary rose glow -->
       <div
-        class="absolute left-[-10%] top-[-15%] h-[420px] w-[420px] rounded-full bg-[#ff3366]/18 blur-[120px]"
+        class="absolute left-[-8%] top-[-12%] h-[500px] w-[500px] rounded-full bg-[#ff3366]/20 blur-[140px]"
+        style="animation: glowDrift1 18s ease-in-out infinite alternate"
       ></div>
+      <!-- Teal accent glow -->
       <div
-        class="absolute bottom-[12%] right-[-8%] h-[360px] w-[360px] rounded-full bg-[#00bfa5]/14 blur-[110px]"
+        class="absolute bottom-[8%] right-[-6%] h-[420px] w-[420px] rounded-full bg-[#00bfa5]/16 blur-[130px]"
+        style="animation: glowDrift2 22s ease-in-out infinite alternate"
       ></div>
+      <!-- Violet midpoint -->
       <div
-        class="absolute left-[35%] top-[28%] h-64 w-64 rounded-full bg-[#6d5dfc]/10 blur-[100px]"
+        class="absolute left-[32%] top-[30%] h-[280px] w-[280px] rounded-full bg-[#7c4dff]/10 blur-[110px]"
+        style="animation: glowDrift3 26s ease-in-out infinite alternate"
       ></div>
     </div>
 
@@ -113,3 +119,18 @@ onBeforeUnmount(() => {
     <AppFooter />
   </div>
 </template>
+
+<style>
+@keyframes glowDrift1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, 60px) scale(1.15); }
+}
+@keyframes glowDrift2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-50px, -40px) scale(1.1); }
+}
+@keyframes glowDrift3 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, -50px) scale(1.2); }
+}
+</style>

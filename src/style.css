@@ -1,21 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import 'tailwindcss';
 
+/* ================================================
+   DESIGN SYSTEM — PlayFlick 2026
+   Color philosophy: Deep cinematic dark / crisp light
+   Primary accent: Crimson-rose (#ff3366) / Emerald-teal (#00bfa5)
+================================================ */
+
 :root {
-  /* Light Theme Variables */
-  --bg-color: #f8fafc;
-  --bg-color-secondary: #f1f5f9;
-  --text-color: #0f172a;
-  --text-color-secondary: #475569;
+  /* Light Theme */
+  --bg-color: #f5f5f7;
+  --bg-color-secondary: #ebebed;
+  --surface-color: rgba(255, 255, 255, 0.82);
+  --text-color: #1d1d1f;
+  --text-color-secondary: #6e6e73;
+  --text-color-tertiary: #98989d;
   --primary-color: #ff3366;
-  --border-color: rgba(15, 23, 42, 0.08);
-  --card-bg: rgba(255, 255, 255, 0.8);
-  --header-bg: rgba(248, 250, 252, 0.72);
-  --footer-bg: #f1f5f9;
-  --link-color: #ff3366;
-  --button-bg: #ff3366;
-  --button-text: #ffffff;
-  --hover-bg: rgba(15, 23, 42, 0.04);
-  --glow-opacity: 0.18;
+  --primary-hover: #e8204f;
+  --accent-teal: #00bfa5;
+  --accent-teal-hover: #009e8a;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-color-strong: rgba(0, 0, 0, 0.14);
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-bg-solid: #ffffff;
+  --header-bg: rgba(245, 245, 247, 0.78);
+  --footer-bg: #ebebed;
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --shadow-color-strong: rgba(0, 0, 0, 0.12);
+  --glow-opacity: 0.14;
+  --noise-opacity: 0.025;
 
   /* Page Transition Loader Colors */
   --loader-color-1-start: #ff3366;
@@ -27,21 +41,28 @@
 }
 
 [data-theme="dark"] {
-  /* Dark Theme Variables */
-  --bg-color: #0b0d26;
-  --bg-color-secondary: #10133a;
-  --text-color: #ffffff;
-  --text-color-secondary: rgba(255, 255, 255, 0.68);
+  /* Dark Theme */
+  --bg-color: #090a1a;
+  --bg-color-secondary: #0e0f22;
+  --surface-color: rgba(255, 255, 255, 0.04);
+  --text-color: #f2f2f7;
+  --text-color-secondary: rgba(242, 242, 247, 0.6);
+  --text-color-tertiary: rgba(242, 242, 247, 0.38);
   --primary-color: #ff3366;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.06);
-  --header-bg: rgba(11, 13, 38, 0.72);
-  --footer-bg: #080a21;
-  --link-color: #ff6f98;
-  --button-bg: #ff3366;
-  --button-text: #ffffff;
-  --hover-bg: rgba(255, 255, 255, 0.08);
+  --primary-hover: #ff4d7e;
+  --accent-teal: #00bfa5;
+  --accent-teal-hover: #13d4b8;
+  --border-color: rgba(255, 255, 255, 0.07);
+  --border-color-strong: rgba(255, 255, 255, 0.14);
+  --card-bg: rgba(255, 255, 255, 0.045);
+  --card-bg-solid: #13152e;
+  --header-bg: rgba(9, 10, 26, 0.82);
+  --footer-bg: #07081a;
+  --hover-bg: rgba(255, 255, 255, 0.06);
+  --shadow-color: rgba(0, 0, 0, 0.35);
+  --shadow-color-strong: rgba(0, 0, 0, 0.55);
   --glow-opacity: 0.7;
+  --noise-opacity: 0.04;
 
   /* Page Transition Loader Colors */
   --loader-color-1-start: #ff4777;
@@ -52,22 +73,38 @@
   --loader-color-3-end: #14dcc3;
 }
 
+/* ================================================
+   TAILWIND V4 THEME TOKENS
+================================================ */
 @theme {
-  /* Tailwind v4 Theme Color Mapping */
   --color-brand-bg: var(--bg-color);
   --color-brand-bg-secondary: var(--bg-color-secondary);
+  --color-brand-surface: var(--surface-color);
   --color-brand-text: var(--text-color);
   --color-brand-text-secondary: var(--text-color-secondary);
+  --color-brand-text-tertiary: var(--text-color-tertiary);
   --color-brand-border: var(--border-color);
+  --color-brand-border-strong: var(--border-color-strong);
   --color-brand-card: var(--card-bg);
+  --color-brand-card-solid: var(--card-bg-solid);
   --color-brand-header: var(--header-bg);
   --color-brand-footer: var(--footer-bg);
   --color-brand-primary: var(--primary-color);
+  --color-brand-primary-hover: var(--primary-hover);
+  --color-brand-teal: var(--accent-teal);
+  --color-brand-teal-hover: var(--accent-teal-hover);
   --color-brand-hover: var(--hover-bg);
+  --color-brand-shadow: var(--shadow-color);
 }
 
+/* ================================================
+   GLOBAL RESET & BASE
+================================================ */
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -76,7 +113,10 @@ body {
   overflow-x: hidden;
   background-color: var(--bg-color);
   color: var(--text-color);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   transition: background-color 0.3s ease, color 0.3s ease;
+  letter-spacing: -0.011em;
 }
 
 img, video {
@@ -85,6 +125,9 @@ img, video {
   object-fit: cover;
 }
 
+/* ================================================
+   SCROLLBAR
+================================================ */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
@@ -94,7 +137,62 @@ img, video {
   scrollbar-width: none;
 }
 
-/* Element Plus style circular clip-path theme transitions */
+/* Custom scrollbar for browsers that support it */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color-strong);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-color-tertiary);
+}
+
+/* ================================================
+   NOISE TEXTURE OVERLAY
+================================================ */
+.noise-overlay::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: var(--noise-opacity);
+  mix-blend-mode: multiply;
+}
+
+[data-theme="dark"] .noise-overlay::before {
+  mix-blend-mode: overlay;
+}
+
+/* ================================================
+   UTILITY CLASSES
+================================================ */
+.section-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card-hover {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.012);
+}
+
+/* ================================================
+   VIEW TRANSITIONS (Theme toggle circle reveal)
+================================================ */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -114,4 +212,3 @@ img, video {
 [data-theme="dark"]::view-transition-new(root) {
   z-index: 1;
 }
-
