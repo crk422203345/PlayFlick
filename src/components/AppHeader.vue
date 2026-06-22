@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { Menu, Play, Search, X } from 'lucide-vue-next'
 import type { NavItem } from '@/data/playflick'
 import ThemeToggle from './ThemeToggle.vue'
 
-defineProps<{
+const props = defineProps<{
   navItems: NavItem[]
   activeNav: NavItem
 }>()
@@ -19,6 +19,52 @@ const handleMobileNavClick = (item: NavItem) => {
   isMobileMenuOpen.value = false
   emit('change-nav', item)
 }
+
+// Dynamic sliding active indicator
+const tabLabels = ref<HTMLElement[]>([])
+const indicatorStyle = ref({
+  left: '0px',
+  width: '0px',
+  opacity: 0,
+})
+
+const updateIndicator = () => {
+  const activeIndex = props.navItems.indexOf(props.activeNav)
+  if (activeIndex === -1) return
+
+  const activeEl = tabLabels.value[activeIndex]
+  if (!activeEl) return
+
+  const parentEl = activeEl.parentElement
+  if (!parentEl) return
+
+  const activeRect = activeEl.getBoundingClientRect()
+  const parentRect = parentEl.getBoundingClientRect()
+
+  const left = activeRect.left - parentRect.left
+  const width = activeRect.width
+
+  indicatorStyle.value = {
+    left: `${left}px`,
+    width: `${width}px`,
+    opacity: 1,
+  }
+}
+
+watch(() => props.activeNav, async () => {
+  await nextTick()
+  updateIndicator()
+})
+
+onMounted(async () => {
+  await nextTick()
+  updateIndicator()
+  window.addEventListener('resize', updateIndicator)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateIndicator)
+})
 </script>
 
 <template>
@@ -42,21 +88,30 @@ const handleMobileNavClick = (item: NavItem) => {
 
       <!-- Desktop Navigation -->
       <nav class="hidden flex-1 justify-center lg:flex">
-        <div class="nav-container">
-          <button
-            v-for="item in navItems"
-            :key="item"
-            class="nav-btn"
-            :class="{ active: activeNav === item }"
-            @click="emit('change-nav', item)"
-          >
-            {{ item }}
-            <!-- Active indicator line -->
-            <span
-              v-if="activeNav === item"
-              class="indicator-line"
-            ></span>
-          </button>
+        <div class="cir-tabs" role="tablist" aria-label="Navigation">
+          <!-- Dynamic sliding indicator pill -->
+          <div class="cir-tabs__indicator" :style="indicatorStyle"></div>
+
+          <template v-for="(item, index) in navItems" :key="item">
+            <input
+              class="cir-tabs__r"
+              type="radio"
+              name="header-nav"
+              :id="`nav-${index}`"
+              :value="item"
+              :checked="activeNav === item"
+              @change="emit('change-nav', item)"
+            />
+            <label
+              :ref="el => { if (el) tabLabels[index] = el as HTMLElement }"
+              class="cir-tabs__t"
+              :for="`nav-${index}`"
+              role="tab"
+              :aria-selected="activeNav === item"
+            >
+              {{ item }}
+            </label>
+          </template>
         </div>
       </nav>
 
@@ -108,82 +163,105 @@ const handleMobileNavClick = (item: NavItem) => {
 </template>
 
 <style scoped>
-.nav-container {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  border-radius: 9999px;
-  padding: 3px;
-  background: var(--bg-color-secondary);
-  border: 1px solid var(--border-color-strong);
-  transition: all 0.3s ease;
-}
-
-.nav-btn {
+.cir-tabs {
   position: relative;
-  border-radius: 9999px;
-  padding: 6px 16px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-color-secondary);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  border: none;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: var(--card-bg-solid, #ffffff);
+  border: 1px solid var(--border-color-strong, #e3e8ee);
+  border-radius: 999px;
+  box-shadow:
+    0 1px 1px rgba(14, 17, 22, 0.04),
+    0 20px 40px -24px rgba(14, 17, 22, 0.18);
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  transition: all 0.3s ease;
+  z-index: 1;
 }
 
-.nav-btn:hover {
-  color: var(--text-color);
-  background: var(--hover-bg);
-}
-
-.nav-btn.active {
-  color: var(--text-color);
-  background: var(--card-bg-solid);
-  font-weight: 600;
-  box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-/* Specific styles for dark theme to make it POP */
-[data-theme="dark"] .nav-container {
+[data-theme="dark"] .cir-tabs {
   background: rgba(255, 255, 255, 0.03);
   border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.2),
+    0 20px 40px -24px rgba(0, 0, 0, 0.6);
 }
 
-[data-theme="dark"] .nav-btn {
-  color: rgba(242, 242, 247, 0.55);
-}
-
-[data-theme="dark"] .nav-btn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-[data-theme="dark"] .nav-btn.active {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.12); /* Brighter glass pill */
-  box-shadow: 
-    0 0 0 1px rgba(255, 255, 255, 0.08), /* Inner border glow */
-    0 4px 12px rgba(0, 0, 0, 0.4);       /* Drop shadow */
-}
-
-/* Indicator line */
-.indicator-line {
+.cir-tabs__indicator {
   position: absolute;
-  bottom: 3px;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 2px;
-  width: 12px;
-  border-radius: 9999px;
-  background-color: var(--primary-color);
-  box-shadow: 0 1px 6px var(--primary-color);
-  transition: all 0.3s ease;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 999px;
+  /* Brand gradient background for light theme */
+  background: linear-gradient(135deg, #ff3366 0%, #d81b4f 100%);
+  box-shadow:
+    0 2px 8px rgba(255, 51, 102, 0.22),
+    0 8px 20px -6px rgba(255, 51, 102, 0.14);
+  transition:
+    left 280ms cubic-bezier(0.25, 1, 0.5, 1),
+    width 280ms cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 200ms ease;
+  z-index: 0;
+  pointer-events: none;
 }
 
-[data-theme="dark"] .indicator-line {
-  background-color: #ff3366;
-  box-shadow: 0 0 8px #ff3366, 0 0 2px #ff3366;
+[data-theme="dark"] .cir-tabs__indicator {
+  /* Slightly more glowing brand gradient for dark theme */
+  background: linear-gradient(135deg, #ff3366 0%, #c4224e 100%);
+  box-shadow:
+    0 0 14px rgba(255, 51, 102, 0.36),
+    0 2px 6px rgba(255, 51, 102, 0.2);
+}
+
+.cir-tabs__r {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cir-tabs__t {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color-secondary, #5b6472);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cir-tabs__t:hover {
+  color: var(--text-color, #0e1116);
+}
+
+[data-theme="dark"] .cir-tabs__t:hover {
+  color: #ffffff;
+}
+
+.cir-tabs__r:checked + .cir-tabs__t {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .cir-tabs__r:checked + .cir-tabs__t {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.cir-tabs__r:focus-visible + .cir-tabs__t {
+  box-shadow: 0 0 0 3px rgba(255, 51, 102, 0.4);
 }
 
 /* Mobile Nav Styles */
