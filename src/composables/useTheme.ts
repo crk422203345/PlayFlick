@@ -2,22 +2,34 @@ import { ref, computed } from 'vue'
 
 export type Theme = 'light' | 'dark'
 
-const theme = ref<Theme>('light')
+const initialTheme = document.documentElement.getAttribute('data-theme')
+const theme = ref<Theme>(initialTheme === 'dark' ? 'dark' : 'light')
 
 export function useTheme() {
   const isDark = computed(() => theme.value === 'dark')
 
-  const setTheme = (newTheme: Theme) => {
+  const applyTheme = (newTheme: Theme, persist: boolean) => {
     theme.value = newTheme
     document.documentElement.setAttribute('data-theme', newTheme)
-    localStorage.setItem('playflick_theme', newTheme)
 
-    // Dynamic favicon updates on theme toggle
+    if (persist) {
+      try {
+        localStorage.setItem('playflick_theme', newTheme)
+      } catch {
+        // Theme still works when storage is blocked.
+      }
+    }
+
     const link = document.querySelector("link[rel*='icon']") as HTMLLinkElement | null
     if (link) {
       link.href = newTheme === 'dark' ? '/favicon-dark.svg' : '/favicon-light.svg'
     }
+
+    const themeColor = document.querySelector('meta[name="theme-color"]')
+    themeColor?.setAttribute('content', newTheme === 'dark' ? '#090a1a' : '#f5f5f7')
   }
+
+  const setTheme = (newTheme: Theme) => applyTheme(newTheme, true)
 
   const toggleTheme = (event?: MouseEvent) => {
     const nextTheme = theme.value === 'light' ? 'dark' : 'light'
@@ -44,32 +56,42 @@ export function useTheme() {
       setTheme(nextTheme)
     })
 
-    transition.ready.then(() => {
-      const clipPath = [
-        `circle(0px at ${x}px ${y}px)`,
-        `circle(${endRadius}px at ${x}px ${y}px)`,
-      ]
-      document.documentElement.animate(
-        {
-          clipPath: isDark.value ? [...clipPath].reverse() : clipPath,
-        },
-        {
-          duration: 450,
-          easing: 'ease-in-out',
-          pseudoElement: isDark.value
-            ? '::view-transition-old(root)'
-            : '::view-transition-new(root)',
-        },
-      )
-    })
+    transition.ready
+      .then(() => {
+        const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`]
+        document.documentElement.animate(
+          {
+            clipPath: isDark.value ? [...clipPath].reverse() : clipPath,
+          },
+          {
+            duration: 450,
+            easing: 'ease-in-out',
+            pseudoElement: isDark.value
+              ? '::view-transition-old(root)'
+              : '::view-transition-new(root)',
+          },
+        )
+      })
+      .catch(() => {
+        // The theme was already applied; only the decorative transition failed.
+      })
   }
 
   const initTheme = () => {
-    const savedTheme = localStorage.getItem('playflick_theme') as Theme | null
+    let savedTheme: Theme | null = null
+    try {
+      savedTheme = localStorage.getItem('playflick_theme') as Theme | null
+    } catch {
+      savedTheme = null
+    }
+
     if (savedTheme === 'light' || savedTheme === 'dark') {
-      setTheme(savedTheme)
+      applyTheme(savedTheme, false)
     } else {
-      setTheme('light') // Default theme is light
+      applyTheme(
+        window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+        false,
+      )
     }
   }
 

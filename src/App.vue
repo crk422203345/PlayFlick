@@ -1,136 +1,126 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppFooter from '@/components/AppFooter.vue'
 import AppHeader from '@/components/AppHeader.vue'
 import { navItems, type NavItem } from '@/data/playflick'
-import AboutPage from '@/pages/AboutPage.vue'
-import DramaPage from '@/pages/DramaPage.vue'
-import GamesPage from '@/pages/GamesPage.vue'
 import HomePage from '@/pages/HomePage.vue'
-import TransitionPage from '@/pages/TransitionPage.vue'
 import { useTheme } from '@/composables/useTheme'
 
-// Initialize Theme
 const { initTheme } = useTheme()
 initTheme()
 
-const PAGE_TRANSITION_DURATION = 900
-const activeNav = ref<NavItem>('首页')
-const isPageTransitioning = ref(true)
-const isPageDataReady = ref(true)
-let pageTransitionTimer: number | undefined
-let pageTransitionStartedAt = 0
-let pageTransitionId = 0
+const AboutPage = defineAsyncComponent(() => import('@/pages/AboutPage.vue'))
+const DramaPage = defineAsyncComponent(() => import('@/pages/DramaPage.vue'))
+const GamesPage = defineAsyncComponent(() => import('@/pages/GamesPage.vue'))
 
-const needsPageReady = (item: NavItem) => item === '短剧专区' || item === '小游戏专区'
+type SearchScope = 'drama' | 'game'
 
-const switchNav = (item: NavItem) => {
-  if (activeNav.value === item && !isPageTransitioning.value) return
-
-  const transitionId = ++pageTransitionId
-  activeNav.value = item
-  isPageTransitioning.value = true
-  isPageDataReady.value = !needsPageReady(item)
-  pageTransitionStartedAt = Date.now()
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-  startPageTransitionTimer(transitionId)
+const pathByNav: Record<NavItem, string> = {
+  首页: '/',
+  短剧专区: '/dramas',
+  小游戏专区: '/games',
+  关于我们: '/about',
 }
 
-const startPageTransitionTimer = (transitionId = pageTransitionId) => {
-  if (pageTransitionTimer) window.clearTimeout(pageTransitionTimer)
-  pageTransitionTimer = window.setTimeout(() => {
-    finishPageTransition(transitionId)
-  }, PAGE_TRANSITION_DURATION)
+const navByPath = Object.fromEntries(
+  Object.entries(pathByNav).map(([nav, path]) => [path, nav]),
+) as Record<string, NavItem>
+
+const readRoute = () => {
+  const [path = '/', queryString = ''] = (window.location.hash.slice(1) || '/').split('?')
+  return {
+    nav: navByPath[path] ?? '首页',
+    query: new URLSearchParams(queryString).get('q')?.trim() ?? '',
+  }
 }
 
-const finishPageTransition = (transitionId = pageTransitionId) => {
-  if (transitionId !== pageTransitionId || !isPageDataReady.value) return
+const initialRoute = readRoute()
+const activeNav = ref<NavItem>(initialRoute.nav)
+const searchQuery = ref(initialRoute.query)
 
-  const remainingTime = PAGE_TRANSITION_DURATION - (Date.now() - pageTransitionStartedAt)
+const getRouteHash = (item: NavItem, query = '') => {
+  const params = new URLSearchParams()
+  if (query) params.set('q', query)
+  const queryString = params.toString()
+  return `#${pathByNav[item]}${queryString ? `?${queryString}` : ''}`
+}
 
-  if (remainingTime > 0) {
-    if (pageTransitionTimer) window.clearTimeout(pageTransitionTimer)
-    pageTransitionTimer = window.setTimeout(() => {
-      finishPageTransition(transitionId)
-    }, remainingTime)
-    return
+const applyRoute = (item: NavItem, query = '', replace = false, scroll = true) => {
+  const normalizedQuery = query.trim()
+  const hash = getRouteHash(item, normalizedQuery)
+
+  if (window.location.hash !== hash) {
+    window.history[replace ? 'replaceState' : 'pushState'](null, '', hash)
   }
 
-  isPageTransitioning.value = false
+  activeNav.value = item
+  searchQuery.value = normalizedQuery
+
+  if (scroll) {
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }
 }
 
-const handlePageReady = () => {
-  isPageDataReady.value = true
-  finishPageTransition()
+const switchNav = (item: NavItem) => {
+  applyRoute(item)
 }
+
+const handleSearch = (query: string, scope: SearchScope) => {
+  applyRoute(scope === 'game' ? '小游戏专区' : '短剧专区', query)
+}
+
+const syncRouteFromLocation = () => {
+  const route = readRoute()
+  activeNav.value = route.nav
+  searchQuery.value = route.query
+  window.scrollTo({ top: 0, behavior: 'auto' })
+}
+
+watch(
+  [activeNav, searchQuery],
+  ([item, query]) => {
+    const queryTitle = query ? `“${query}” - ` : ''
+    document.title = `${queryTitle}${item} | PlayFlick`
+  },
+  { immediate: true },
+)
 
 onMounted(() => {
-  pageTransitionStartedAt = Date.now()
-  startPageTransitionTimer()
+  applyRoute(activeNav.value, searchQuery.value, true, false)
+  window.addEventListener('popstate', syncRouteFromLocation)
+  window.addEventListener('hashchange', syncRouteFromLocation)
 })
 
 onBeforeUnmount(() => {
-  if (pageTransitionTimer) window.clearTimeout(pageTransitionTimer)
+  window.removeEventListener('popstate', syncRouteFromLocation)
+  window.removeEventListener('hashchange', syncRouteFromLocation)
 })
 </script>
 
 <template>
   <div
-    class="noise-overlay min-h-screen overflow-hidden bg-brand-bg text-brand-text transition-colors duration-300"
+    class="min-h-screen overflow-hidden bg-brand-bg text-brand-text transition-colors duration-300"
   >
-    <!-- Ambient background glow — cinematic depth -->
-    <div
-      class="pointer-events-none fixed inset-0 overflow-hidden"
-      style="opacity: var(--glow-opacity)"
-    >
-      <!-- Primary rose glow -->
-      <div
-        class="absolute left-[-8%] top-[-12%] h-[500px] w-[500px] rounded-full bg-[#ff3366]/20 blur-[140px]"
-        style="animation: glowDrift1 18s ease-in-out infinite alternate"
-      ></div>
-      <!-- Teal accent glow -->
-      <div
-        class="absolute bottom-[8%] right-[-6%] h-[420px] w-[420px] rounded-full bg-[#00bfa5]/16 blur-[130px]"
-        style="animation: glowDrift2 22s ease-in-out infinite alternate"
-      ></div>
-      <!-- Violet midpoint -->
-      <div
-        class="absolute left-[32%] top-[30%] h-[280px] w-[280px] rounded-full bg-[#7c4dff]/10 blur-[110px]"
-        style="animation: glowDrift3 26s ease-in-out infinite alternate"
-      ></div>
-    </div>
-
-    <AppHeader :nav-items="navItems" :active-nav="activeNav" @change-nav="switchNav" />
+    <AppHeader
+      :nav-items="navItems"
+      :active-nav="activeNav"
+      @change-nav="switchNav"
+      @search="handleSearch"
+    />
 
     <main class="relative z-10">
-      <TransitionPage v-slot:loading v-if="isPageTransitioning" />
-      <div v-show="!isPageTransitioning">
+      <KeepAlive :max="4">
         <HomePage
           v-if="activeNav === '首页'"
           @navigate-dramas="switchNav('短剧专区')"
           @navigate-games="switchNav('小游戏专区')"
         />
-        <DramaPage v-else-if="activeNav === '短剧专区'" @page-ready="handlePageReady" />
-        <GamesPage v-else-if="activeNav === '小游戏专区'" @page-ready="handlePageReady" />
+        <DramaPage v-else-if="activeNav === '短剧专区'" :search-query="searchQuery" />
+        <GamesPage v-else-if="activeNav === '小游戏专区'" :search-query="searchQuery" />
         <AboutPage v-else />
-      </div>
+      </KeepAlive>
     </main>
 
     <AppFooter />
   </div>
 </template>
-
-<style>
-@keyframes glowDrift1 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(40px, 60px) scale(1.15); }
-}
-@keyframes glowDrift2 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-50px, -40px) scale(1.1); }
-}
-@keyframes glowDrift3 {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(30px, -50px) scale(1.2); }
-}
-</style>

@@ -6,17 +6,27 @@ defineProps<{
   item: RankingItem
   rank: number
 }>()
+
+const emit = defineEmits<{
+  select: []
+}>()
 </script>
 
 <template>
   <article
     class="rank-card group relative overflow-hidden rounded-2xl border border-brand-border bg-brand-card p-6 shadow-md shadow-brand-shadow backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-border-strong hover:shadow-lg"
+    role="link"
+    tabindex="0"
+    @click="emit('select')"
+    @keydown.enter="emit('select')"
+    @keydown.space.prevent="emit('select')"
   >
     <!-- Rank number backdrop -->
     <span
       class="rank-number pointer-events-none absolute left-4 top-2.5 select-none font-black leading-none"
       :class="rank <= 3 ? 'text-[88px]' : 'text-[80px]'"
-    >{{ rank }}</span>
+      >{{ rank }}</span
+    >
 
     <!-- Gold shimmer for top 3 -->
     <div
@@ -29,10 +39,13 @@ defineProps<{
       <!-- Type badge -->
       <span
         class="inline-flex items-center rounded-lg border border-brand-border px-2.5 py-0.5 text-[10px] font-semibold text-brand-text-secondary tracking-wide uppercase"
-      >{{ item.type }}</span>
+        >{{ item.type }}</span
+      >
 
       <!-- Title -->
-      <h3 class="mt-3 line-clamp-1 text-[15px] font-bold leading-snug text-brand-text group-hover:text-brand-primary transition-colors duration-200">
+      <h3
+        class="mt-3 line-clamp-1 text-[15px] font-bold leading-snug text-brand-text group-hover:text-brand-primary transition-colors duration-200"
+      >
         {{ item.title }}
       </h3>
 

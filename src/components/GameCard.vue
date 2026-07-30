@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Zap } from 'lucide-vue-next'
 import type { GameItem } from '@/data/playflick'
+import SmartImage from './SmartImage.vue'
 
 withDefaults(
   defineProps<{
@@ -13,6 +14,10 @@ withDefaults(
     detailed: false,
   },
 )
+
+const emit = defineEmits<{
+  select: []
+}>()
 </script>
 
 <template>
@@ -21,11 +26,11 @@ withDefaults(
   >
     <!-- Game image -->
     <div class="relative aspect-[4/3] overflow-hidden">
-      <img
+      <SmartImage
         :src="item.image"
         :alt="item.title"
+        fallback-kind="game"
         class="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.06]"
-        loading="lazy"
       />
       <div
         class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"
@@ -50,14 +55,21 @@ withDefaults(
 
     <!-- Card body -->
     <div :class="detailed ? 'p-4' : 'p-3'" class="transition-colors duration-300">
-      <h3 class="line-clamp-1 text-[14px] font-semibold leading-snug text-brand-text">{{ item.title }}</h3>
+      <h3 class="line-clamp-1 text-[14px] font-semibold leading-snug text-brand-text">
+        {{ item.title }}
+      </h3>
 
-      <p v-if="!detailed" class="mt-1.5 text-[11px] text-brand-text-secondary">{{ item.players }} 人在玩</p>
+      <p v-if="!detailed" class="mt-1.5 text-[11px] text-brand-text-secondary">
+        {{ item.players }} 人在玩
+      </p>
 
       <!-- ⚡ 扫光 CTA 按钮 (来自 Uiverse.io by Ali-Tahmazi99 · 主题适配版) -->
       <button
+        type="button"
         :class="detailed ? 'mt-3.5' : 'mt-2.5'"
         class="game-sweep-btn w-full"
+        :aria-label="`${buttonText}：${item.title}`"
+        @click="emit('select')"
       >
         <span class="btn-inner">
           <Zap v-if="detailed" class="btn-icon" />
@@ -84,7 +96,9 @@ withDefaults(
   border: 1.5px solid #00bfa5;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.3s ease, all 0.5s ease-in;
+  transition:
+    border-color 0.3s ease,
+    all 0.5s ease-in;
   z-index: 1;
   cursor: pointer;
   background: transparent;
@@ -134,7 +148,7 @@ withDefaults(
   color: #00e0c5;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   transition: color 0.3s ease-in;
 }
 
@@ -149,23 +163,23 @@ withDefaults(
 <!-- 全局非 scoped 块处理浅色主题覆盖 (需要穿透 data-theme) -->
 <style>
 /* 浅色主题下游戏按钮颜色覆盖 */
-:root:not([data-theme="dark"]) .game-sweep-btn {
+:root:not([data-theme='dark']) .game-sweep-btn {
   border-color: #00897b !important;
 }
 
-:root:not([data-theme="dark"]) .game-sweep-btn::before {
+:root:not([data-theme='dark']) .game-sweep-btn::before {
   background: #004d40 !important;
 }
 
-:root:not([data-theme="dark"]) .game-sweep-btn::after {
+:root:not([data-theme='dark']) .game-sweep-btn::after {
   background: #00897b !important;
 }
 
-:root:not([data-theme="dark"]) .game-sweep-btn .btn-inner {
+:root:not([data-theme='dark']) .game-sweep-btn .btn-inner {
   color: #00695c !important;
 }
 
-:root:not([data-theme="dark"]) .game-sweep-btn:hover .btn-inner {
+:root:not([data-theme='dark']) .game-sweep-btn:hover .btn-inner {
   color: #ffffff !important;
 }
 </style>
