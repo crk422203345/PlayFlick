@@ -48,7 +48,7 @@ watch(
 
 <template>
   <div
-    class="min-h-screen overflow-hidden bg-brand-bg text-brand-text transition-colors duration-300"
+    class="flex min-h-screen flex-col overflow-hidden bg-brand-bg text-brand-text transition-colors duration-300"
   >
     <AppHeader
       :nav-items="navItems"
@@ -59,7 +59,7 @@ watch(
       @open-library="router.push({ name: 'library' })"
     />
 
-    <main class="relative z-10">
+    <main class="relative z-10 flex-1">
       <RouterView v-slot="{ Component, route: currentRoute }">
         <KeepAlive :include="cachedPageNames" :max="6">
           <component
