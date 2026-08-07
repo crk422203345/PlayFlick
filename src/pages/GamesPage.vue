@@ -9,6 +9,7 @@ import {
   ref,
 } from 'vue'
 import { ChevronDown, ChevronUp, Joystick } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 import EmptyState from '@/components/EmptyState.vue'
 import GameCard from '@/components/GameCard.vue'
 import { gameApi, homeApi } from '@/api/modules'
@@ -20,7 +21,7 @@ import {
   matchesQuery,
   type HotGameApiItem,
 } from '@/utils/content'
-import { externalLinks } from '@/utils/externalLinks'
+import { createGameEntry, useLibrary } from '@/composables/useLibrary'
 
 const GAME_BATCH_SIZE = 20
 const ALL_GAME_TYPE = '全部游戏'
@@ -38,6 +39,9 @@ const props = withDefaults(
     searchQuery: '',
   },
 )
+
+const router = useRouter()
+const { remember, rememberMany } = useLibrary()
 
 const fallbackGameTypes: GameTypeApiItem[] = gameCategories.map((name, index) => ({
   id: index,
@@ -149,6 +153,7 @@ const fetchGamePage = async (page: number, gameType: string, version: number, re
   } else {
     appendGames(list)
   }
+  rememberMany(list.map(mapGameToContent).map(createGameEntry))
 
   const currentPage = Number(res?.now_page) || page
   nextPage.value = currentPage + 1
@@ -261,11 +266,8 @@ const selectGameType = async (gameType: string) => {
 }
 
 const openGameDetail = (item: HotGameItem) => {
-  if (item.id == null) {
-    window.location.href = externalLinks.gameHome
-    return
-  }
-  window.location.href = externalLinks.gameDetail(item.id)
+  const entry = remember(createGameEntry(item))
+  router.push({ name: 'game-detail', params: { id: entry.key } })
 }
 
 onMounted(async () => {

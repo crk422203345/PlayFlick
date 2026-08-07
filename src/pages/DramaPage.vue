@@ -9,6 +9,7 @@ import {
   ref,
 } from 'vue'
 import { Clapperboard } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 import DramaCard from '@/components/DramaCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import { homeApi } from '@/api/modules'
@@ -20,7 +21,7 @@ import {
   matchesQuery,
   type CourseApiItem,
 } from '@/utils/content'
-import { externalLinks } from '@/utils/externalLinks'
+import { createDramaEntry, useLibrary } from '@/composables/useLibrary'
 
 interface DramaCategoryOption {
   classificationId: number
@@ -41,6 +42,9 @@ const props = withDefaults(
     searchQuery: '',
   },
 )
+
+const router = useRouter()
+const { remember, rememberMany } = useLibrary()
 
 const pageSize = 20
 const activeClassifyId = ref<string | number>('')
@@ -154,6 +158,7 @@ const fetchDramaList = async (reset = false) => {
       (item) => !existingKeys.has(`${item.courseId}-${item.courseDetailsId}`),
     )
     dramaList.value = reset ? nextList : [...dramaList.value, ...deduplicatedList]
+    rememberMany(nextList.map(createDramaEntry))
 
     const responsePage = Number(data?.currPage) || currentPage.value
     const totalPage = Number(data?.totalPage) || responsePage
@@ -201,11 +206,8 @@ const selectDramaCategory = async (classifyId: string | number) => {
 }
 
 const openDramaDetail = (item: DramaListItem) => {
-  if (item.courseId == null || item.courseDetailsId == null) {
-    window.location.href = externalLinks.tvHome
-    return
-  }
-  window.location.href = externalLinks.dramaDetail(item.courseId, item.courseDetailsId)
+  const entry = remember(createDramaEntry(item))
+  router.push({ name: 'drama-detail', params: { id: entry.key } })
 }
 
 onMounted(async () => {

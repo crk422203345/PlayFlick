@@ -5,7 +5,7 @@ withDefaults(
   defineProps<{
     title?: string
     description?: string
-    tone?: 'pink' | 'green'
+    tone?: 'pink' | 'green' | 'purple'
   }>(),
   {
     title: '暂无数据',
@@ -22,7 +22,9 @@ withDefaults(
       :class="
         tone === 'pink'
           ? 'border-[#ff3366]/20 bg-[#ff3366]/8 text-[#ff8bad]'
-          : 'border-[#00bfa5]/20 bg-[#00bfa5]/8 text-[#00bfa5]'
+          : tone === 'purple'
+            ? 'border-[#7c4dff]/20 bg-[#7c4dff]/8 text-[#8b66ff]'
+            : 'border-[#00bfa5]/20 bg-[#00bfa5]/8 text-[#00bfa5]'
       "
     >
       <Inbox class="h-9 w-9" />

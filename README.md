@@ -1,17 +1,19 @@
 # PlayFlick
 
-PlayFlick 是一个面向中文用户的短剧与小游戏聚合前端。项目以 Vue 3、TypeScript、Vite 和 Tailwind CSS 构建，包含首页、短剧专区、小游戏专区、关于我们、双主题和站内分类搜索。
+PlayFlick 是一个面向中文用户的短剧与小游戏聚合前端。项目以 Vue 3、TypeScript、Vue Router、Vite 和 Tailwind CSS 构建，包含内容发现、详情承接、综合榜单、本地片单、双主题和跨内容搜索。
 
 ## 技术结构
 
-- `src/App.vue`：Hash 路由、浏览器前进/后退、页面按需加载和全局搜索分发
-- `src/pages/`：首页、短剧、小游戏和品牌页面
+- `src/router/`：Hash 路由、动态详情地址、页面按需加载、滚动恢复和 404
+- `src/App.vue`：应用框架、路由视图缓存、页面标题和全局搜索分发
+- `src/pages/`：首页、发现、列表、详情、榜单、片单、品牌和平台规则页面
 - `src/components/`：导航、内容卡片、图片容错、空状态和主题控件
+- `src/composables/useLibrary.ts`：收藏、浏览历史和内容快照的本地持久化
 - `src/api/`：短剧与小游戏接口封装
 - `src/utils/content.ts`：接口数据适配、计数格式化、搜索匹配和内容兜底
 - `src/data/playflick.ts`：接口不可用时的本地精选内容
 
-页面使用远端数据优先、本地内容兜底的策略。远端封面因防盗链或网络问题加载失败时，`SmartImage` 会自动替换为稳定封面。
+页面使用远端数据优先、本地内容兜底的策略。远端封面因防盗链或网络问题加载失败时，`SmartImage` 会自动替换为稳定封面。收藏和浏览历史默认保存在当前浏览器中，不依赖登录即可使用。
 
 ## 本地开发
 
@@ -61,4 +63,13 @@ location /game-api/ {
 
 ## 交互约定
 
-内部页面使用 `#/dramas`、`#/games` 等 Hash 地址，静态托管不需要额外配置 SPA 回退。内容详情与会员、福利等业务链路会跳转至对应的短剧或游戏平台。
+内部页面使用 Hash 地址，静态托管不需要额外配置 SPA 回退：
+
+- `#/discover`：跨短剧与游戏的发现和搜索
+- `#/dramas`、`#/dramas/:id`：短剧列表与详情
+- `#/games`、`#/games/:id`：游戏列表与详情
+- `#/rankings`：短剧与游戏榜单
+- `#/library`：收藏和最近浏览
+- `#/about`、`#/business`、`#/legal/:document`：品牌、商务和平台规则
+
+详情页中的“立即观看”和“开始游戏”会跳转至对应内容平台。

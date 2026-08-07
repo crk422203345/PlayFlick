@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Clapperboard, Gamepad2, Gem, Play } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 import { coreValues } from '@/data/playflick'
+
+const router = useRouter()
+
+const scrollToValues = () => {
+  document.querySelector('#brand-values')?.scrollIntoView({ behavior: 'smooth' })
+}
 </script>
 
 <template>
@@ -11,7 +18,9 @@ import { coreValues } from '@/data/playflick'
       <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#ff3366]/16">
         <Gem class="h-8 w-8 text-[#ff6f98]" />
       </div>
-      <h1 class="max-w-3xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-brand-text">
+      <h1
+        class="max-w-3xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-brand-text"
+      >
         让每一次打开，都有好剧与好玩相遇
       </h1>
       <p class="mt-6 max-w-2xl text-base leading-8 text-brand-text-secondary sm:text-lg">
@@ -21,11 +30,13 @@ import { coreValues } from '@/data/playflick'
       <div class="mt-8 flex flex-wrap gap-3">
         <button
           class="rounded-full bg-[#ff3366] px-6 py-3 text-sm font-black text-white shadow-[0_0_30px_rgba(255,51,102,0.38)] border-none cursor-pointer"
+          @click="scrollToValues"
         >
-          了解品牌故事
+          查看品牌价值
         </button>
         <button
           class="rounded-full border border-brand-border bg-brand-card px-6 py-3 text-sm font-black text-brand-text-secondary hover:text-brand-text hover:bg-brand-hover cursor-pointer"
+          @click="router.push('/business')"
         >
           商务合作
         </button>
@@ -34,7 +45,9 @@ import { coreValues } from '@/data/playflick'
 
     <!-- Orbit Animation -->
     <div class="relative min-h-[400px] sm:min-h-[430px]">
-      <div class="brand-orbit absolute inset-6 sm:inset-8 rounded-full border border-brand-border"></div>
+      <div
+        class="brand-orbit absolute inset-6 sm:inset-8 rounded-full border border-brand-border"
+      ></div>
       <div
         class="absolute left-1 sm:left-2 top-2 rounded-[24px] sm:rounded-[32px] border border-[#ff3366]/25 bg-[#ff3366]/12 p-3.5 sm:p-5 shadow-[0_0_45px_rgba(255,51,102,0.18)] backdrop-blur-md text-brand-text"
       >
@@ -72,7 +85,7 @@ import { coreValues } from '@/data/playflick'
   </section>
 
   <!-- Core Values -->
-  <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+  <section id="brand-values" class="mx-auto max-w-7xl scroll-mt-24 px-4 pb-16 sm:px-6 lg:px-8">
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <article
         v-for="item in coreValues"

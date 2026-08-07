@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ChevronRight, Crown, Flame, Gamepad2, Play, Trophy } from 'lucide-vue-next'
 import DramaCard from '@/components/DramaCard.vue'
 import GameCard from '@/components/GameCard.vue'
@@ -18,6 +19,7 @@ import {
 import {
   formatCompactCount,
   getErrorMessage,
+  getFallbackImage,
   mapCourseToDrama,
   mapGameToContent,
   type CourseApiItem,
@@ -25,11 +27,10 @@ import {
   type HotGameApiItem,
 } from '@/utils/content'
 import { externalLinks } from '@/utils/externalLinks'
+import { createDramaEntry, createGameEntry, useLibrary } from '@/composables/useLibrary'
 
-const emit = defineEmits<{
-  'navigate-dramas': []
-  'navigate-games': []
-}>()
+const router = useRouter()
+const { remember, rememberMany } = useLibrary()
 
 interface VisualCategoryItem {
   id?: number
@@ -210,6 +211,7 @@ const fetchFeaturedDramas = async () => {
       featuredDramaList.value = enabledList.map((item, index) =>
         mapCourseToDrama(item, index),
       ) as FeaturedDramaItem[]
+      rememberMany(featuredDramaList.value.map(createDramaEntry))
     }
   } catch (error) {
     featuredDramaError.value = getErrorMessage(error, '短剧推荐加载失败，已展示精选内容')
@@ -284,6 +286,7 @@ const fetchHotGames = async () => {
 
     if (list.length > 0) {
       hotGameList.value = list.slice(0, 4).map(mapGameToContent)
+      rememberMany(hotGameList.value.map(createGameEntry))
     }
   } catch (error) {
     hotGameError.value = getErrorMessage(error, '热门小游戏加载失败，已展示精选游戏')
@@ -300,19 +303,29 @@ const openTvHome = () => {
   window.location.href = externalLinks.tvHome
 }
 
+const openVisualCategory = (name: string) => {
+  router.push({ name: 'discover', query: { q: name, scope: 'drama' } })
+}
+
 const openDramaDetail = (item: FeaturedDramaItem) => {
-  if (item.courseId == null || item.courseDetailsId == null) return
-  window.location.href = externalLinks.dramaDetail(item.courseId, item.courseDetailsId)
+  const entry = remember(createDramaEntry(item))
+  router.push({ name: 'drama-detail', params: { id: entry.key } })
 }
 
 const openGameDetail = (item: HotGameItem) => {
-  if (item.id == null) return
-  window.location.href = externalLinks.gameDetail(item.id)
+  const entry = remember(createGameEntry(item))
+  router.push({ name: 'game-detail', params: { id: entry.key } })
 }
 
 const openRankingDetail = (item: HotRankingItem) => {
-  if (item.courseId == null || item.courseDetailsId == null) return
-  window.location.href = externalLinks.dramaDetail(item.courseId, item.courseDetailsId)
+  const entry = remember(
+    createDramaEntry({
+      ...item,
+      views: item.heat,
+      image: getFallbackImage(item.title, 'drama'),
+    }),
+  )
+  router.push({ name: 'drama-detail', params: { id: entry.key } })
 }
 
 const openDramaCheckIn = () => {
@@ -330,7 +343,7 @@ const handleOperationCardClick = (index: number) => {
   }
 
   if (index === 1) {
-    emit('navigate-dramas')
+    router.push({ name: 'dramas' })
     return
   }
 
@@ -502,7 +515,7 @@ onBeforeUnmount(stopHeroTimer)
           </p>
           <button
             class="mt-7 flex items-center gap-2 rounded-full bg-[#00bfa5] px-6 py-3 text-sm font-black text-[#031b20] shadow-[0_0_30px_rgba(0,191,165,0.42)] transition hover:-translate-y-1 hover:bg-[#12d8be]"
-            @click="emit('navigate-games')"
+            @click="router.push({ name: 'games' })"
           >
             进入游戏大厅
             <ChevronRight class="h-4 w-4" />
@@ -529,7 +542,7 @@ onBeforeUnmount(stopHeroTimer)
       </div>
       <button
         class="hidden items-center gap-1 text-sm font-bold text-brand-text-secondary transition hover:text-brand-text sm:flex border-none bg-transparent cursor-pointer"
-        @click="emit('navigate-dramas')"
+        @click="router.push({ name: 'dramas' })"
       >
         查看全部
         <ChevronRight class="h-4 w-4" />
@@ -647,7 +660,7 @@ onBeforeUnmount(stopHeroTimer)
         v-for="item in visualCategoryList"
         :key="item.id ?? item.name"
         class="category-card group aspect-[16/10] cursor-pointer"
-        @click="openTvHome"
+        @click="openVisualCategory(item.name)"
       >
         <SmartImage
           :src="item.image"

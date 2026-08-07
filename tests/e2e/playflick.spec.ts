@@ -149,19 +149,71 @@ test('desktop navigation, search, and browser history stay in sync', async ({ pa
 
   await page.getByLabel('搜索短剧或小游戏').first().fill('三国')
   await page.locator('.search-scope-button').nth(1).click()
-  await expect(page).toHaveURL(/#\/games\?q=%E4%B8%89%E5%9B%BD$/)
-  await expect(page.getByText('正在搜索“三国”')).toBeVisible()
+  await expect(page).toHaveURL(/#\/discover\?q=%E4%B8%89%E5%9B%BD&scope=game$/)
+  await expect(page.getByRole('heading', { name: '发现' })).toBeVisible()
+  await expect(page.getByText(/“三国”/).first()).toBeVisible()
   await expect(page.locator('main article')).toHaveCount(1)
 
   await page.goBack()
   await expect(page).toHaveURL(/#\/games$/)
-  await expect(page.getByText('正在搜索“三国”')).toHaveCount(0)
   await expect(page.getByLabel('搜索短剧或小游戏').first()).toHaveValue('')
 
   await page.goForward()
-  await expect(page).toHaveURL(/#\/games\?q=%E4%B8%89%E5%9B%BD$/)
+  await expect(page).toHaveURL(/#\/discover\?q=%E4%B8%89%E5%9B%BD&scope=game$/)
   await expect(page.getByLabel('搜索短剧或小游戏').first()).toHaveValue('三国')
   expect(authorizationHeaders.filter(Boolean)).toEqual([])
+})
+
+test('detail pages persist favorites and viewing history', async ({ page }) => {
+  await mockApi(page)
+  await page.goto('/#/dramas')
+
+  await page.locator('main article[role="link"]').first().click()
+  await expect(page).toHaveURL(/#\/dramas\/course-1$/)
+  await expect(page.getByRole('heading', { name: '甜宠测试剧' })).toBeVisible()
+
+  await page.getByRole('button', { name: '加入片单' }).click()
+  await expect(page.getByRole('button', { name: '已收藏' })).toBeVisible()
+  await page.getByRole('button', { name: '我的片单' }).click()
+
+  await expect(page).toHaveURL(/#\/library$/)
+  await expect(page.getByRole('heading', { name: '我的片单' })).toBeVisible()
+  await expect(page.getByText('甜宠测试剧').first()).toBeVisible()
+
+  await page.reload()
+  await expect(page.getByText('甜宠测试剧').first()).toBeVisible()
+  await page.getByRole('button', { name: /最近浏览/ }).click()
+  await expect(page.getByText('甜宠测试剧').first()).toBeVisible()
+})
+
+test('unknown routes provide recovery navigation', async ({ page }) => {
+  await mockApi(page)
+  await page.goto('/#/missing-page')
+
+  await expect(page.getByRole('heading', { name: '这个页面没有上映' })).toBeVisible()
+  await page.getByText('返回首页', { exact: true }).click()
+  await expect(page).toHaveURL(/#\/$/)
+})
+
+test('new pages remain within the mobile viewport', async ({ page }) => {
+  await mockApi(page)
+  await page.setViewportSize({ width: 390, height: 844 })
+
+  for (const path of [
+    '/#/discover',
+    '/#/rankings',
+    '/#/library',
+    '/#/business',
+    '/#/legal/privacy',
+  ]) {
+    await page.goto(path)
+    await expect(page.locator('main')).toBeVisible()
+    const layout = await page.evaluate(() => ({
+      viewportWidth: window.innerWidth,
+      documentWidth: document.documentElement.scrollWidth,
+    }))
+    expect(layout.documentWidth, path).toBeLessThanOrEqual(layout.viewportWidth)
+  }
 })
 
 test('mobile menu is opaque, searchable, and does not overflow', async ({ page }) => {

@@ -11,7 +11,7 @@ import {
   Tv,
 } from 'lucide-vue-next'
 
-export type NavItem = '首页' | '短剧专区' | '小游戏专区' | '关于我们'
+export type NavItem = '首页' | '发现' | '短剧专区' | '小游戏专区' | '榜单'
 
 export interface HeroSlide {
   title: string
@@ -64,7 +64,7 @@ export interface CoreValue {
   icon: Component
 }
 
-export const navItems: NavItem[] = ['首页', '短剧专区', '小游戏专区', '关于我们']
+export const navItems: NavItem[] = ['首页', '发现', '短剧专区', '小游戏专区', '榜单']
 
 export const dramaCategories = ['猜你喜欢', '都市', '甜宠', '逆袭', '复仇', '古装', '悬疑', '豪门']
 

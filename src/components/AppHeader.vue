@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
-import { Clapperboard, Gamepad2, Menu, Play, Search, X } from 'lucide-vue-next'
+import { Bookmark, Clapperboard, Gamepad2, Menu, Play, Search, X } from 'lucide-vue-next'
 import type { NavItem } from '@/data/playflick'
 import ThemeToggle from './ThemeToggle.vue'
 
 const props = withDefaults(
   defineProps<{
     navItems: NavItem[]
-    activeNav: NavItem
+    activeNav: NavItem | null
     searchQuery?: string
   }>(),
   {
@@ -18,6 +18,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   'change-nav': [item: NavItem]
   search: [query: string, scope: 'drama' | 'game']
+  'open-library': []
 }>()
 
 const headerElement = ref<HTMLElement | null>(null)
@@ -28,6 +29,12 @@ const searchInput = ref(props.searchQuery)
 const handleMobileNavClick = (item: NavItem) => {
   isMobileMenuOpen.value = false
   emit('change-nav', item)
+}
+
+const openLibrary = () => {
+  isMobileMenuOpen.value = false
+  isSearchOpen.value = false
+  emit('open-library')
 }
 
 const submitSearch = (scope?: 'drama' | 'game') => {
@@ -61,8 +68,11 @@ const indicatorStyle = ref({
 })
 
 const updateIndicator = () => {
-  const activeIndex = props.navItems.indexOf(props.activeNav)
-  if (activeIndex === -1) return
+  const activeIndex = props.activeNav == null ? -1 : props.navItems.indexOf(props.activeNav)
+  if (activeIndex === -1) {
+    indicatorStyle.value = { ...indicatorStyle.value, opacity: 0 }
+    return
+  }
 
   const activeEl = tabLabels.value[activeIndex]
   if (!activeEl) return
@@ -172,7 +182,7 @@ onBeforeUnmount(() => {
       <!-- Right Section -->
       <div class="flex items-center gap-2">
         <!-- Search (Desktop) -->
-        <div class="relative hidden md:block">
+        <div class="relative hidden xl:block">
           <form
             class="flex w-[190px] items-center gap-2 rounded-full border border-brand-border bg-brand-card/60 px-3.5 py-2 backdrop-blur-xl transition-all duration-200 hover:border-brand-border-strong focus-within:border-brand-border-strong focus-within:bg-brand-card xl:w-[220px]"
             role="search"
@@ -212,6 +222,16 @@ onBeforeUnmount(() => {
 
         <!-- Theme Switcher -->
         <ThemeToggle />
+
+        <button
+          class="hidden h-9 w-9 items-center justify-center rounded-full border border-brand-border bg-brand-card text-brand-text transition hover:bg-brand-hover md:flex"
+          type="button"
+          aria-label="我的片单"
+          title="我的片单"
+          @click="openLibrary"
+        >
+          <Bookmark class="h-4 w-4" />
+        </button>
 
         <!-- Mobile Menu Hamburger Button -->
         <button
@@ -265,6 +285,7 @@ onBeforeUnmount(() => {
         >
           {{ item }}
         </button>
+        <button class="mobile-nav-btn" @click="openLibrary">我的片单</button>
       </div>
     </transition>
   </header>
