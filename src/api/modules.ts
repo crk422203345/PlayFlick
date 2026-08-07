@@ -13,6 +13,7 @@ import type {
   GameListResponse,
   GameTypeRequest,
   GameTypeResponse,
+  UnifiedSearchData,
 } from './types'
 
 const TV_API_BASE_URL = import.meta.env.VITE_TV_API_BASE_URL || 'https://tv.bingo.vip/sqx_fast'
@@ -162,7 +163,7 @@ export const categoryApi = {
 
 export const searchApi = {
   search(params: ApiParams = {}) {
-    return request.get<ApiPayload>('/search', { params })
+    return request.get<ApiEnvelope<UnifiedSearchData>>('/search', { params })
   },
   getHotKeywords(params: ApiParams = {}) {
     return request.get<ApiPayload>('/search/hot-keywords', { params })

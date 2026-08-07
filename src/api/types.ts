@@ -113,3 +113,8 @@ export interface GameTypeRequest {
   appid: string
   versionCode: number
 }
+
+export interface UnifiedSearchData {
+  dramas: CourseApiItem[]
+  games: HotGameApiItem[]
+}

@@ -5,7 +5,13 @@ import { useRoute, useRouter } from 'vue-router'
 import GameCard from '@/components/GameCard.vue'
 import SmartImage from '@/components/SmartImage.vue'
 import { allGames, type GameItem } from '@/data/playflick'
-import { createGameEntry, useLibrary, type LibraryEntry } from '@/composables/useLibrary'
+import {
+  createEntryFromRoute,
+  createGameEntry,
+  getLibraryRoute,
+  useLibrary,
+  type LibraryEntry,
+} from '@/composables/useLibrary'
 import { externalLinks } from '@/utils/externalLinks'
 
 const route = useRoute()
@@ -15,7 +21,11 @@ const fallbackEntries = allGames.map(createGameEntry)
 
 const entry = computed<LibraryEntry | undefined>(() => {
   const key = String(route.params.id || '')
-  return library.findEntry('game', key) ?? fallbackEntries.find((item) => item.key === key)
+  return (
+    library.findEntry('game', key) ??
+    fallbackEntries.find((item) => item.key === key) ??
+    createEntryFromRoute('game', key, route.query)
+  )
 })
 
 const isFavorite = computed(() => (entry.value ? library.isFavorite(entry.value) : false))
@@ -44,7 +54,7 @@ const toggleFavorite = () => {
 
 const openRelated = (item: GameItem) => {
   const nextEntry = library.remember(createGameEntry(item))
-  router.push({ name: 'game-detail', params: { id: nextEntry.key } })
+  router.push(getLibraryRoute(nextEntry))
 }
 
 watch(

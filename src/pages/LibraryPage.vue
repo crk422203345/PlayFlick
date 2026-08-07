@@ -4,7 +4,12 @@ import { Bookmark, Clock3, Trash2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import EmptyState from '@/components/EmptyState.vue'
 import SmartImage from '@/components/SmartImage.vue'
-import { useLibrary, type LibraryKind, type LibraryRecord } from '@/composables/useLibrary'
+import {
+  getLibraryRoute,
+  useLibrary,
+  type LibraryKind,
+  type LibraryRecord,
+} from '@/composables/useLibrary'
 
 type LibraryTab = 'favorites' | 'history'
 type LibraryScope = 'all' | LibraryKind
@@ -21,10 +26,7 @@ const records = computed(() =>
 )
 
 const openEntry = (entry: LibraryRecord) => {
-  router.push({
-    name: entry.kind === 'drama' ? 'drama-detail' : 'game-detail',
-    params: { id: entry.key },
-  })
+  router.push(getLibraryRoute(entry))
 }
 
 const formatDate = (timestamp: number) =>

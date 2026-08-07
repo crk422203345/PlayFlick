@@ -5,7 +5,13 @@ import { useRoute, useRouter } from 'vue-router'
 import DramaCard from '@/components/DramaCard.vue'
 import SmartImage from '@/components/SmartImage.vue'
 import { allDramas, type DramaItem } from '@/data/playflick'
-import { createDramaEntry, useLibrary, type LibraryEntry } from '@/composables/useLibrary'
+import {
+  createDramaEntry,
+  createEntryFromRoute,
+  getLibraryRoute,
+  useLibrary,
+  type LibraryEntry,
+} from '@/composables/useLibrary'
 import { externalLinks } from '@/utils/externalLinks'
 
 const route = useRoute()
@@ -15,7 +21,11 @@ const fallbackEntries = allDramas.map(createDramaEntry)
 
 const entry = computed<LibraryEntry | undefined>(() => {
   const key = String(route.params.id || '')
-  return library.findEntry('drama', key) ?? fallbackEntries.find((item) => item.key === key)
+  return (
+    library.findEntry('drama', key) ??
+    fallbackEntries.find((item) => item.key === key) ??
+    createEntryFromRoute('drama', key, route.query)
+  )
 })
 
 const isFavorite = computed(() => (entry.value ? library.isFavorite(entry.value) : false))
@@ -44,7 +54,7 @@ const toggleFavorite = () => {
 
 const openRelated = (item: DramaItem) => {
   const nextEntry = library.remember(createDramaEntry(item))
-  router.push({ name: 'drama-detail', params: { id: nextEntry.key } })
+  router.push(getLibraryRoute(nextEntry))
 }
 
 watch(

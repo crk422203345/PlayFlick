@@ -27,7 +27,12 @@ import {
   type HotGameApiItem,
 } from '@/utils/content'
 import { externalLinks } from '@/utils/externalLinks'
-import { createDramaEntry, createGameEntry, useLibrary } from '@/composables/useLibrary'
+import {
+  createDramaEntry,
+  createGameEntry,
+  getLibraryRoute,
+  useLibrary,
+} from '@/composables/useLibrary'
 
 const router = useRouter()
 const { remember, rememberMany } = useLibrary()
@@ -309,12 +314,12 @@ const openVisualCategory = (name: string) => {
 
 const openDramaDetail = (item: FeaturedDramaItem) => {
   const entry = remember(createDramaEntry(item))
-  router.push({ name: 'drama-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 
 const openGameDetail = (item: HotGameItem) => {
   const entry = remember(createGameEntry(item))
-  router.push({ name: 'game-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 
 const openRankingDetail = (item: HotRankingItem) => {
@@ -325,7 +330,7 @@ const openRankingDetail = (item: HotRankingItem) => {
       image: getFallbackImage(item.title, 'drama'),
     }),
   )
-  router.push({ name: 'drama-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 
 const openDramaCheckIn = () => {

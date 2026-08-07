@@ -73,3 +73,20 @@ location /game-api/ {
 - `#/about`、`#/business`、`#/legal/:document`：品牌、商务和平台规则
 
 详情页中的“立即观看”和“开始游戏”会跳转至对应内容平台。
+
+## 搜索接口
+
+发现页会优先请求 `GET /search?q=<关键词>&scope=<all|drama|game>`，响应格式如下：
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "dramas": [],
+    "games": []
+  }
+}
+```
+
+`dramas` 和 `games` 分别使用 `CourseApiItem` 与 `HotGameApiItem` 字段结构。搜索服务不可用时，页面会明确提示并降级为精选内容内匹配。

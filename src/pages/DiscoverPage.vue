@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Compass, Search, Sparkles } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import DramaCard from '@/components/DramaCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import GameCard from '@/components/GameCard.vue'
-import { homeApi } from '@/api/modules'
+import { homeApi, searchApi } from '@/api/modules'
 import { allDramas, allGames } from '@/data/playflick'
 import {
   mapCourseToDrama,
@@ -16,7 +16,12 @@ import {
   type GameContentItem,
   type HotGameApiItem,
 } from '@/utils/content'
-import { createDramaEntry, createGameEntry, useLibrary } from '@/composables/useLibrary'
+import {
+  createDramaEntry,
+  createGameEntry,
+  getLibraryRoute,
+  useLibrary,
+} from '@/composables/useLibrary'
 
 type DiscoverScope = 'all' | 'drama' | 'game'
 
@@ -26,6 +31,8 @@ const { remember, rememberMany } = useLibrary()
 const dramas = ref<DramaContentItem[]>([...allDramas])
 const games = ref<GameContentItem[]>([...allGames])
 const loading = ref(false)
+const usingCuratedFallback = ref(false)
+let loadRequestId = 0
 
 const query = computed(() => (typeof route.query.q === 'string' ? route.query.q.trim() : ''))
 const scope = computed<DiscoverScope>(() => {
@@ -46,6 +53,12 @@ const resultCount = computed(
 )
 
 const hotKeywords = ['都市', '甜宠', '悬疑', '逆袭', '消除', '策略', '冒险']
+const getTitleKey = (item: { title: string }) => item.title.trim().toLocaleLowerCase('zh-CN')
+
+interface DiscoveryContent {
+  dramas: DramaContentItem[]
+  games: GameContentItem[]
+}
 
 const mergeByKey = <T,>(items: T[], getKey: (item: T) => string) => {
   const seen = new Set<string>()
@@ -57,9 +70,9 @@ const mergeByKey = <T,>(items: T[], getKey: (item: T) => string) => {
   })
 }
 
-const loadDiscoveryContent = async () => {
-  loading.value = true
-
+const loadCuratedContent = async () => {
+  let nextDramas: DramaContentItem[] = [...allDramas]
+  let nextGames: GameContentItem[] = [...allGames]
   const [dramaResult, gameResult] = await Promise.allSettled([
     homeApi.selectCourse({ page: 1, limit: 40, languageType: 'zh' }),
     homeApi.selectHotGames({ gametype: '全部游戏', pagecode: 1 }),
@@ -72,7 +85,7 @@ const loadDiscoveryContent = async () => {
     const mapped = list
       .filter((item) => item.status !== 0 && item.isDelete !== 1)
       .map(mapCourseToDrama)
-    dramas.value = mergeByKey([...mapped, ...allDramas], (item) => createDramaEntry(item).key)
+    nextDramas = mergeByKey([...mapped, ...allDramas], getTitleKey)
   }
 
   if (gameResult.status === 'fulfilled') {
@@ -80,11 +93,60 @@ const loadDiscoveryContent = async () => {
       ? gameResult.value.lists
       : []
     const mapped = list.map(mapGameToContent)
-    games.value = mergeByKey([...mapped, ...allGames], (item) => createGameEntry(item).key)
+    nextGames = mergeByKey([...mapped, ...allGames], getTitleKey)
   }
 
-  rememberMany([...dramas.value.map(createDramaEntry), ...games.value.map(createGameEntry)])
-  loading.value = false
+  return { dramas: nextDramas, games: nextGames } satisfies DiscoveryContent
+}
+
+const loadSearchContent = async () => {
+  const response = await searchApi.search({ q: query.value, scope: scope.value })
+  if (
+    !response?.data ||
+    !Array.isArray(response.data.dramas) ||
+    !Array.isArray(response.data.games)
+  ) {
+    throw new Error('搜索接口返回格式异常')
+  }
+
+  const remoteDramas = response.data.dramas.map(mapCourseToDrama)
+  const remoteGames = response.data.games.map(mapGameToContent)
+  const localDramas = allDramas.filter((item) => matchesQuery(query.value, item.title, item.type))
+  const localGames = allGames.filter((item) => matchesQuery(query.value, item.title, item.category))
+
+  return {
+    dramas: mergeByKey([...remoteDramas, ...localDramas], getTitleKey),
+    games: mergeByKey([...remoteGames, ...localGames], getTitleKey),
+  } satisfies DiscoveryContent
+}
+
+const loadDiscoveryContent = async () => {
+  const requestId = ++loadRequestId
+  loading.value = true
+  usingCuratedFallback.value = false
+
+  try {
+    let content: DiscoveryContent
+    let nextUsingCuratedFallback = false
+    if (query.value) {
+      try {
+        content = await loadSearchContent()
+      } catch {
+        nextUsingCuratedFallback = true
+        content = await loadCuratedContent()
+      }
+    } else {
+      content = await loadCuratedContent()
+    }
+
+    if (requestId !== loadRequestId) return
+    usingCuratedFallback.value = nextUsingCuratedFallback
+    dramas.value = content.dramas
+    games.value = content.games
+    rememberMany([...dramas.value.map(createDramaEntry), ...games.value.map(createGameEntry)])
+  } finally {
+    if (requestId === loadRequestId) loading.value = false
+  }
 }
 
 const setScope = (nextScope: DiscoverScope) => {
@@ -103,15 +165,21 @@ const searchKeyword = (keyword: string) => {
 
 const openDrama = (item: DramaContentItem) => {
   const entry = remember(createDramaEntry(item))
-  router.push({ name: 'drama-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 
 const openGame = (item: GameContentItem) => {
   const entry = remember(createGameEntry(item))
-  router.push({ name: 'game-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 
-onMounted(loadDiscoveryContent)
+watch(
+  () => route.fullPath,
+  () => {
+    if (route.name === 'discover') loadDiscoveryContent()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -178,6 +246,12 @@ onMounted(loadDiscoveryContent)
     <div v-if="loading" class="mb-6 text-sm font-semibold text-brand-text-secondary animate-pulse">
       正在汇集最新内容...
     </div>
+    <p
+      v-else-if="usingCuratedFallback && query"
+      class="mb-6 rounded-md border border-[#ffbf47]/25 bg-[#ffbf47]/8 px-3 py-2 text-sm font-semibold text-brand-text-secondary"
+    >
+      搜索服务暂不可用，当前展示精选内容中的匹配结果。
+    </p>
 
     <div v-if="scope !== 'game' && filteredDramas.length > 0" class="mb-12">
       <div class="mb-5 flex items-center justify-between gap-4">
@@ -218,7 +292,13 @@ onMounted(loadDiscoveryContent)
 
     <EmptyState
       v-if="!loading && resultCount === 0"
-      :description="query ? `没有找到与“${query}”相关的内容` : '暂时没有可展示内容'"
+      :description="
+        query
+          ? usingCuratedFallback
+            ? `精选内容中暂未找到与“${query}”相关的结果`
+            : `没有找到与“${query}”相关的内容`
+          : '暂时没有可展示内容'
+      "
       tone="purple"
     />
   </section>

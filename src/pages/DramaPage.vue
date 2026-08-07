@@ -21,7 +21,7 @@ import {
   matchesQuery,
   type CourseApiItem,
 } from '@/utils/content'
-import { createDramaEntry, useLibrary } from '@/composables/useLibrary'
+import { createDramaEntry, getLibraryRoute, useLibrary } from '@/composables/useLibrary'
 
 interface DramaCategoryOption {
   classificationId: number
@@ -207,7 +207,7 @@ const selectDramaCategory = async (classifyId: string | number) => {
 
 const openDramaDetail = (item: DramaListItem) => {
   const entry = remember(createDramaEntry(item))
-  router.push({ name: 'drama-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 
 onMounted(async () => {

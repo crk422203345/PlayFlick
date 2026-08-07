@@ -220,6 +220,49 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
+        <!-- Compact Search (Small Desktop) -->
+        <div class="relative hidden lg:block xl:hidden">
+          <button
+            type="button"
+            class="grid h-9 w-9 place-items-center rounded-full border border-brand-border bg-brand-card text-brand-text transition hover:bg-brand-hover"
+            :aria-expanded="isSearchOpen"
+            aria-controls="compact-search-panel"
+            aria-label="打开搜索"
+            title="搜索"
+            @click="isSearchOpen = !isSearchOpen"
+          >
+            <Search class="h-4 w-4" />
+          </button>
+
+          <div
+            v-if="isSearchOpen"
+            id="compact-search-panel"
+            class="absolute right-0 top-[calc(100%+10px)] w-80 rounded-lg border border-brand-border bg-brand-card-solid p-3 shadow-xl shadow-brand-shadow"
+          >
+            <form
+              class="flex items-center gap-2 rounded-md border border-brand-border bg-brand-card px-3 py-2.5"
+              role="search"
+              @submit.prevent="submitSearch()"
+            >
+              <Search class="h-4 w-4 shrink-0 text-brand-text-tertiary" />
+              <input
+                v-model="searchInput"
+                class="w-full border-none bg-transparent text-sm text-brand-text outline-none placeholder:text-brand-text-tertiary"
+                placeholder="搜索短剧 / 小游戏"
+                aria-label="搜索短剧或小游戏"
+              />
+            </form>
+            <div v-if="searchInput.trim()" class="mt-2 grid grid-cols-2 gap-2">
+              <button type="button" class="mobile-search-button" @click="submitSearch('drama')">
+                <Clapperboard class="h-4 w-4" /> 搜短剧
+              </button>
+              <button type="button" class="mobile-search-button" @click="submitSearch('game')">
+                <Gamepad2 class="h-4 w-4" /> 搜游戏
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Theme Switcher -->
         <ThemeToggle />
 

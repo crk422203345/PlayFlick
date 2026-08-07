@@ -6,7 +6,12 @@ import GameCard from '@/components/GameCard.vue'
 import RankingCard from '@/components/RankingCard.vue'
 import { allGames, rankings, type RankingItem } from '@/data/playflick'
 import { getFallbackImage, type DramaContentItem } from '@/utils/content'
-import { createDramaEntry, createGameEntry, useLibrary } from '@/composables/useLibrary'
+import {
+  createDramaEntry,
+  createGameEntry,
+  getLibraryRoute,
+  useLibrary,
+} from '@/composables/useLibrary'
 
 type RankingScope = 'drama' | 'game'
 
@@ -28,12 +33,12 @@ const openDrama = (item: RankingItem) => {
     image: getFallbackImage(item.title, 'drama'),
   }
   const entry = remember(createDramaEntry(drama))
-  router.push({ name: 'drama-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 
 const openGame = (item: (typeof allGames)[number]) => {
   const entry = remember(createGameEntry(item))
-  router.push({ name: 'game-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 </script>
 

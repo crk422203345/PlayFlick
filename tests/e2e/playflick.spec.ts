@@ -122,6 +122,32 @@ const mockApi = async (page: Page, fail = false) => {
     })
   })
 
+  await page.route('**/api/v1/search**', (route) => {
+    if (fail) return json(route, { message: 'search unavailable' }, 503)
+
+    const query = new URL(route.request().url()).searchParams.get('q') || ''
+    const games = query.includes('三国')
+      ? [
+          {
+            id: 999,
+            pic1: gameImage,
+            pic4: gameImage,
+            downloadnum: '500',
+            gamename: '三国深度策略',
+            typeword: '策略经营',
+            gametype: '策略经营',
+            gametypes: ['策略经营'],
+          },
+        ]
+      : []
+
+    return json(route, {
+      code: 0,
+      msg: 'success',
+      data: { dramas: [], games },
+    })
+  })
+
   return thirdPartyAuthorizationHeaders
 }
 
@@ -152,6 +178,7 @@ test('desktop navigation, search, and browser history stay in sync', async ({ pa
   await expect(page).toHaveURL(/#\/discover\?q=%E4%B8%89%E5%9B%BD&scope=game$/)
   await expect(page.getByRole('heading', { name: '发现' })).toBeVisible()
   await expect(page.getByText(/“三国”/).first()).toBeVisible()
+  await expect(page.getByText('三国深度策略')).toBeVisible()
   await expect(page.locator('main article')).toHaveCount(1)
 
   await page.goBack()
@@ -164,13 +191,22 @@ test('desktop navigation, search, and browser history stay in sync', async ({ pa
   expect(authorizationHeaders.filter(Boolean)).toEqual([])
 })
 
-test('detail pages persist favorites and viewing history', async ({ page }) => {
+test('detail pages persist favorites, history, and shareable route data', async ({
+  page,
+  browser,
+}) => {
   await mockApi(page)
   await page.goto('/#/dramas')
 
   await page.locator('main article[role="link"]').first().click()
-  await expect(page).toHaveURL(/#\/dramas\/course-1$/)
+  await expect(page).toHaveURL(/#\/dramas\/course-1\?/)
   await expect(page.getByRole('heading', { name: '甜宠测试剧' })).toBeVisible()
+
+  const freshContext = await browser.newContext()
+  const sharedPage = await freshContext.newPage()
+  await sharedPage.goto(page.url())
+  await expect(sharedPage.getByRole('heading', { name: '甜宠测试剧' })).toBeVisible()
+  await freshContext.close()
 
   await page.getByRole('button', { name: '加入片单' }).click()
   await expect(page.getByRole('button', { name: '已收藏' })).toBeVisible()
@@ -184,6 +220,19 @@ test('detail pages persist favorites and viewing history', async ({ page }) => {
   await expect(page.getByText('甜宠测试剧').first()).toBeVisible()
   await page.getByRole('button', { name: /最近浏览/ }).click()
   await expect(page.getByText('甜宠测试剧').first()).toBeVisible()
+})
+
+test('game detail routes open in a fresh browser context', async ({ page, browser }) => {
+  await mockApi(page)
+  await page.goto('/#/games')
+  await page.getByRole('button', { name: /立即畅玩：三国策略场/ }).click()
+  await expect(page).toHaveURL(/#\/games\/game-1\?/)
+
+  const freshContext = await browser.newContext()
+  const sharedPage = await freshContext.newPage()
+  await sharedPage.goto(page.url())
+  await expect(sharedPage.getByRole('heading', { name: '三国策略场' })).toBeVisible()
+  await freshContext.close()
 })
 
 test('unknown routes provide recovery navigation', async ({ page }) => {
@@ -214,6 +263,22 @@ test('new pages remain within the mobile viewport', async ({ page }) => {
     }))
     expect(layout.documentWidth, path).toBeLessThanOrEqual(layout.viewportWidth)
   }
+
+  await page.setViewportSize({ width: 1100, height: 800 })
+  await page.goto('/')
+  await page.getByRole('button', { name: '打开搜索' }).click()
+  await expect(page.locator('#compact-search-panel input')).toBeVisible()
+})
+
+test('invalid local library records are discarded safely', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('playflick_favorites', '[null,{},"old-format"]')
+    localStorage.setItem('playflick_history', '{"broken":true}')
+  })
+  await page.goto('/#/library')
+
+  await expect(page.getByRole('heading', { name: '我的片单' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '片单还是空的' })).toBeVisible()
 })
 
 test('mobile menu is opaque, searchable, and does not overflow', async ({ page }) => {

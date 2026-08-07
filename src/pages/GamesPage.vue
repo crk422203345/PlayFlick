@@ -21,7 +21,7 @@ import {
   matchesQuery,
   type HotGameApiItem,
 } from '@/utils/content'
-import { createGameEntry, useLibrary } from '@/composables/useLibrary'
+import { createGameEntry, getLibraryRoute, useLibrary } from '@/composables/useLibrary'
 
 const GAME_BATCH_SIZE = 20
 const ALL_GAME_TYPE = '全部游戏'
@@ -267,7 +267,7 @@ const selectGameType = async (gameType: string) => {
 
 const openGameDetail = (item: HotGameItem) => {
   const entry = remember(createGameEntry(item))
-  router.push({ name: 'game-detail', params: { id: entry.key } })
+  router.push(getLibraryRoute(entry))
 }
 
 onMounted(async () => {

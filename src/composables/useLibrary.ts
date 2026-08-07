@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import type { LocationQuery, RouteLocationRaw } from 'vue-router'
 import type { DramaContentItem, GameContentItem } from '@/utils/content'
 
 export type LibraryKind = 'drama' | 'game'
@@ -24,20 +25,40 @@ const CATALOG_KEY = 'playflick_catalog'
 const MAX_HISTORY = 40
 const MAX_CATALOG = 120
 
-const readRecords = <T>(key: string): T[] => {
+const isLibraryEntry = (value: unknown): value is LibraryEntry => {
+  if (!value || typeof value !== 'object') return false
+  const entry = value as Partial<LibraryEntry>
+  return (
+    typeof entry.key === 'string' &&
+    (entry.kind === 'drama' || entry.kind === 'game') &&
+    typeof entry.title === 'string' &&
+    typeof entry.category === 'string' &&
+    typeof entry.metric === 'string' &&
+    typeof entry.image === 'string' &&
+    (entry.primaryId == null || typeof entry.primaryId === 'number') &&
+    (entry.secondaryId == null || typeof entry.secondaryId === 'number')
+  )
+}
+
+const isLibraryRecord = (value: unknown): value is LibraryRecord =>
+  isLibraryEntry(value) &&
+  'updatedAt' in value &&
+  typeof (value as Partial<LibraryRecord>).updatedAt === 'number'
+
+const readRecords = <T>(key: string, isValid: (value: unknown) => value is T): T[] => {
   if (typeof window === 'undefined') return []
 
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(key) || '[]')
-    return Array.isArray(parsed) ? (parsed as T[]) : []
+    return Array.isArray(parsed) ? parsed.filter(isValid) : []
   } catch {
     return []
   }
 }
 
-const favorites = ref<LibraryRecord[]>(readRecords<LibraryRecord>(FAVORITES_KEY))
-const history = ref<LibraryRecord[]>(readRecords<LibraryRecord>(HISTORY_KEY))
-const catalog = ref<LibraryEntry[]>(readRecords<LibraryEntry>(CATALOG_KEY))
+const favorites = ref<LibraryRecord[]>(readRecords(FAVORITES_KEY, isLibraryRecord))
+const history = ref<LibraryRecord[]>(readRecords(HISTORY_KEY, isLibraryRecord))
+const catalog = ref<LibraryEntry[]>(readRecords(CATALOG_KEY, isLibraryEntry))
 
 const persist = (key: string, value: unknown) => {
   if (typeof window === 'undefined') return
@@ -75,6 +96,52 @@ export const createGameEntry = (item: GameContentItem): LibraryEntry => ({
   metric: item.players,
   image: item.image,
   primaryId: item.id,
+})
+
+const readQueryValue = (query: LocationQuery, key: string) => {
+  const value = query[key]
+  return typeof value === 'string' ? value : undefined
+}
+
+const readQueryNumber = (query: LocationQuery, key: string) => {
+  const value = Number(readQueryValue(query, key))
+  return Number.isFinite(value) && value >= 0 ? value : undefined
+}
+
+export const createEntryFromRoute = (
+  kind: LibraryKind,
+  key: string,
+  query: LocationQuery,
+): LibraryEntry | undefined => {
+  const title = readQueryValue(query, 'title')
+  const category = readQueryValue(query, 'category')
+  const metric = readQueryValue(query, 'metric')
+  const image = readQueryValue(query, 'image')
+  if (!title || !category || !metric || !image) return undefined
+
+  return {
+    key,
+    kind,
+    title,
+    category,
+    metric,
+    image,
+    primaryId: readQueryNumber(query, 'primaryId'),
+    secondaryId: readQueryNumber(query, 'secondaryId'),
+  }
+}
+
+export const getLibraryRoute = (entry: LibraryEntry): RouteLocationRaw => ({
+  name: entry.kind === 'drama' ? 'drama-detail' : 'game-detail',
+  params: { id: entry.key },
+  query: {
+    title: entry.title,
+    category: entry.category,
+    metric: entry.metric,
+    image: entry.image,
+    ...(entry.primaryId == null ? {} : { primaryId: String(entry.primaryId) }),
+    ...(entry.secondaryId == null ? {} : { secondaryId: String(entry.secondaryId) }),
+  },
 })
 
 const withUpdatedRecord = (records: LibraryRecord[], entry: LibraryEntry) => [
