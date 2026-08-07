@@ -156,6 +156,11 @@ test('desktop navigation, search, and browser history stay in sync', async ({ pa
   await page.goBack()
   await expect(page).toHaveURL(/#\/games$/)
   await expect(page.getByText('正在搜索“三国”')).toHaveCount(0)
+  await expect(page.getByLabel('搜索短剧或小游戏').first()).toHaveValue('')
+
+  await page.goForward()
+  await expect(page).toHaveURL(/#\/games\?q=%E4%B8%89%E5%9B%BD$/)
+  await expect(page.getByLabel('搜索短剧或小游戏').first()).toHaveValue('三国')
   expect(authorizationHeaders.filter(Boolean)).toEqual([])
 })
 

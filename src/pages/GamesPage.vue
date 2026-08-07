@@ -12,6 +12,7 @@ import { ChevronDown, ChevronUp, Joystick } from 'lucide-vue-next'
 import EmptyState from '@/components/EmptyState.vue'
 import GameCard from '@/components/GameCard.vue'
 import { gameApi, homeApi } from '@/api/modules'
+import type { GameTypeApiItem } from '@/api/types'
 import { allGames, gameCategories, type GameItem } from '@/data/playflick'
 import {
   getErrorMessage,
@@ -19,15 +20,11 @@ import {
   matchesQuery,
   type HotGameApiItem,
 } from '@/utils/content'
+import { externalLinks } from '@/utils/externalLinks'
 
 const GAME_BATCH_SIZE = 20
 const ALL_GAME_TYPE = '全部游戏'
 const COLLAPSED_CATEGORY_COUNT = 12
-
-interface GameTypeApiItem {
-  id: string | number
-  name: string
-}
 
 type HotGameItem = GameItem & {
   id?: number
@@ -265,10 +262,10 @@ const selectGameType = async (gameType: string) => {
 
 const openGameDetail = (item: HotGameItem) => {
   if (item.id == null) {
-    window.location.href = 'https://g.bingo.vip/#/'
+    window.location.href = externalLinks.gameHome
     return
   }
-  window.location.href = `https://g.bingo.vip/#/gamedetails/content?gid=${item.id}&edition=0&key=XC9RdtCC`
+  window.location.href = externalLinks.gameDetail(item.id)
 }
 
 onMounted(async () => {

@@ -12,6 +12,7 @@ import { Clapperboard } from 'lucide-vue-next'
 import DramaCard from '@/components/DramaCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import { homeApi } from '@/api/modules'
+import type { ClassificationApiItem } from '@/api/types'
 import { allDramas, type DramaItem } from '@/data/playflick'
 import {
   getErrorMessage,
@@ -19,11 +20,7 @@ import {
   matchesQuery,
   type CourseApiItem,
 } from '@/utils/content'
-
-interface ClassificationApiItem {
-  classificationId: number
-  classificationName?: string
-}
+import { externalLinks } from '@/utils/externalLinks'
 
 interface DramaCategoryOption {
   classificationId: number
@@ -205,10 +202,10 @@ const selectDramaCategory = async (classifyId: string | number) => {
 
 const openDramaDetail = (item: DramaListItem) => {
   if (item.courseId == null || item.courseDetailsId == null) {
-    window.location.href = 'https://tv.bingo.vip/#/'
+    window.location.href = externalLinks.tvHome
     return
   }
-  window.location.href = `https://tv.bingo.vip/#/me/detail/detail?id=${item.courseId}&courseDetailsId=${item.courseDetailsId}`
+  window.location.href = externalLinks.dramaDetail(item.courseId, item.courseDetailsId)
 }
 
 onMounted(async () => {

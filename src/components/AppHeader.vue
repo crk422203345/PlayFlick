@@ -4,10 +4,16 @@ import { Clapperboard, Gamepad2, Menu, Play, Search, X } from 'lucide-vue-next'
 import type { NavItem } from '@/data/playflick'
 import ThemeToggle from './ThemeToggle.vue'
 
-const props = defineProps<{
-  navItems: NavItem[]
-  activeNav: NavItem
-}>()
+const props = withDefaults(
+  defineProps<{
+    navItems: NavItem[]
+    activeNav: NavItem
+    searchQuery?: string
+  }>(),
+  {
+    searchQuery: '',
+  },
+)
 
 const emit = defineEmits<{
   'change-nav': [item: NavItem]
@@ -17,7 +23,7 @@ const emit = defineEmits<{
 const headerElement = ref<HTMLElement | null>(null)
 const isMobileMenuOpen = ref(false)
 const isSearchOpen = ref(false)
-const searchQuery = ref('')
+const searchInput = ref(props.searchQuery)
 
 const handleMobileNavClick = (item: NavItem) => {
   isMobileMenuOpen.value = false
@@ -25,7 +31,7 @@ const handleMobileNavClick = (item: NavItem) => {
 }
 
 const submitSearch = (scope?: 'drama' | 'game') => {
-  const query = searchQuery.value.trim()
+  const query = searchInput.value.trim()
   if (!query) return
 
   const resolvedScope = scope ?? (props.activeNav === '小游戏专区' ? 'game' : 'drama')
@@ -83,6 +89,13 @@ watch(
     isMobileMenuOpen.value = false
     await nextTick()
     updateIndicator()
+  },
+)
+
+watch(
+  () => props.searchQuery,
+  (query) => {
+    searchInput.value = query
   },
 )
 
@@ -174,7 +187,7 @@ onBeforeUnmount(() => {
               <Search class="h-3.5 w-3.5" />
             </button>
             <input
-              v-model="searchQuery"
+              v-model="searchInput"
               class="w-full border-none bg-transparent text-[13px] text-brand-text outline-none placeholder:text-brand-text-tertiary"
               placeholder="搜索短剧 / 小游戏"
               aria-label="搜索短剧或小游戏"
@@ -183,16 +196,16 @@ onBeforeUnmount(() => {
           </form>
 
           <div
-            v-if="isSearchOpen && searchQuery.trim()"
+            v-if="isSearchOpen && searchInput.trim()"
             class="absolute right-0 top-[calc(100%+10px)] w-72 overflow-hidden rounded-xl border border-brand-border bg-brand-card-solid p-2 shadow-xl shadow-brand-shadow"
           >
             <button type="button" class="search-scope-button" @click="submitSearch('drama')">
               <Clapperboard class="h-4 w-4 text-[#ff3366]" />
-              <span>在短剧中搜索“{{ searchQuery.trim() }}”</span>
+              <span>在短剧中搜索“{{ searchInput.trim() }}”</span>
             </button>
             <button type="button" class="search-scope-button" @click="submitSearch('game')">
               <Gamepad2 class="h-4 w-4 text-[#00bfa5]" />
-              <span>在游戏中搜索“{{ searchQuery.trim() }}”</span>
+              <span>在游戏中搜索“{{ searchInput.trim() }}”</span>
             </button>
           </div>
         </div>
@@ -227,13 +240,13 @@ onBeforeUnmount(() => {
         >
           <Search class="h-4 w-4 shrink-0 text-brand-text-tertiary" />
           <input
-            v-model="searchQuery"
+            v-model="searchInput"
             class="w-full border-none bg-transparent text-sm text-brand-text outline-none placeholder:text-brand-text-tertiary"
             placeholder="搜索短剧 / 小游戏"
             aria-label="搜索短剧或小游戏"
           />
         </form>
-        <div v-if="searchQuery.trim()" class="mb-2 grid grid-cols-2 gap-2">
+        <div v-if="searchInput.trim()" class="mb-2 grid grid-cols-2 gap-2">
           <button type="button" class="mobile-search-button" @click="submitSearch('drama')">
             <Clapperboard class="h-4 w-4" />
             搜短剧

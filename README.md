@@ -39,8 +39,10 @@ npm run preview
 VITE_API_BASE_URL=http://localhost:3000/api/v1
 VITE_API_TIMEOUT=15000
 VITE_TV_API_BASE_URL=https://tv.bingo.vip/sqx_fast
+VITE_TV_APP_URL=https://tv.bingo.vip
 VITE_GAME_API_BASE_URL=/game-api
 VITE_GAME_API_TARGET=https://g.bingo.vip
+VITE_GAME_APP_URL=https://g.bingo.vip
 VITE_GAME_API_KEY=XC9RdtCC
 VITE_GAME_APP_ID=2
 ```

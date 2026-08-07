@@ -104,6 +104,7 @@ onBeforeUnmount(() => {
     <AppHeader
       :nav-items="navItems"
       :active-nav="activeNav"
+      :search-query="searchQuery"
       @change-nav="switchNav"
       @search="handleSearch"
     />

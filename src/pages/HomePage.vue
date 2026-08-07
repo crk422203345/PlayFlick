@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue'
 import { ChevronRight, Crown, Flame, Gamepad2, Play, Trophy } from 'lucide-vue-next'
 import DramaCard from '@/components/DramaCard.vue'
 import GameCard from '@/components/GameCard.vue'
 import RankingCard from '@/components/RankingCard.vue'
 import SmartImage from '@/components/SmartImage.vue'
 import { homeApi } from '@/api/modules'
+import type { BannerApiItem, ClassificationApiItem } from '@/api/types'
 import {
   featuredDramas,
   heroSlides,
@@ -23,26 +24,12 @@ import {
   type GameContentItem,
   type HotGameApiItem,
 } from '@/utils/content'
+import { externalLinks } from '@/utils/externalLinks'
 
 const emit = defineEmits<{
   'navigate-dramas': []
   'navigate-games': []
 }>()
-
-interface BannerApiItem {
-  id: number
-  name?: string
-  imageUrl?: string
-  state?: number
-  url?: string
-  describes?: string | null
-  languageName?: string
-}
-
-interface ClassificationApiItem {
-  classificationId: number
-  classificationName?: string
-}
 
 interface VisualCategoryItem {
   id?: number
@@ -306,34 +293,34 @@ const fetchHotGames = async () => {
 }
 
 const openVipPage = () => {
-  window.location.href = 'https://tv.bingo.vip/#/pages/login/loginPhone?index=2'
+  window.location.href = externalLinks.tvVip
 }
 
 const openTvHome = () => {
-  window.location.href = 'https://tv.bingo.vip/#/'
+  window.location.href = externalLinks.tvHome
 }
 
 const openDramaDetail = (item: FeaturedDramaItem) => {
   if (item.courseId == null || item.courseDetailsId == null) return
-  window.location.href = `https://tv.bingo.vip/#/me/detail/detail?id=${item.courseId}&courseDetailsId=${item.courseDetailsId}`
+  window.location.href = externalLinks.dramaDetail(item.courseId, item.courseDetailsId)
 }
 
 const openGameDetail = (item: HotGameItem) => {
   if (item.id == null) return
-  window.location.href = `https://g.bingo.vip/#/gamedetails/content?gid=${item.id}&edition=0&key=XC9RdtCC`
+  window.location.href = externalLinks.gameDetail(item.id)
 }
 
 const openRankingDetail = (item: HotRankingItem) => {
   if (item.courseId == null || item.courseDetailsId == null) return
-  window.location.href = `https://tv.bingo.vip/#/me/detail/detail?id=${item.courseId}&courseDetailsId=${item.courseDetailsId}`
+  window.location.href = externalLinks.dramaDetail(item.courseId, item.courseDetailsId)
 }
 
 const openDramaCheckIn = () => {
-  window.location.href = 'https://tv.bingo.vip/#/pages/chasingDrama/chasingDrama'
+  window.location.href = externalLinks.dramaCheckIn
 }
 
 const openGameWelfare = () => {
-  window.location.href = 'https://g.bingo.vip/#/welfare?key=XC9RdtCC'
+  window.location.href = externalLinks.gameWelfare
 }
 
 const handleOperationCardClick = (index: number) => {
@@ -352,24 +339,32 @@ const handleOperationCardClick = (index: number) => {
   }
 }
 
-onMounted(() => {
-  fetchBannerList()
-  fetchFeaturedDramas()
-  fetchVisualCategories()
-  fetchHotRankings()
-  fetchHotGames()
+const stopHeroTimer = () => {
+  if (heroTimer) window.clearInterval(heroTimer)
+  heroTimer = undefined
+}
 
+const startHeroTimer = () => {
+  stopHeroTimer()
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     heroTimer = window.setInterval(() => {
       if (document.hidden || bannerSlides.value.length < 2) return
       activeHeroIndex.value = (activeHeroIndex.value + 1) % bannerSlides.value.length
     }, 5200)
   }
+}
+
+onMounted(() => {
+  fetchBannerList()
+  fetchFeaturedDramas()
+  fetchVisualCategories()
+  fetchHotRankings()
+  fetchHotGames()
 })
 
-onBeforeUnmount(() => {
-  if (heroTimer) window.clearInterval(heroTimer)
-})
+onActivated(startHeroTimer)
+onDeactivated(stopHeroTimer)
+onBeforeUnmount(stopHeroTimer)
 </script>
 
 <template>
@@ -674,10 +669,11 @@ onBeforeUnmount(() => {
 
   <section class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:gap-5">
-      <article
+      <button
         v-for="(item, index) in homeOperationCards"
         :key="item.title"
-        class="group cursor-pointer overflow-hidden rounded-3xl border border-brand-border bg-brand-card p-6 shadow-xl shadow-brand-text/5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+        type="button"
+        class="group cursor-pointer overflow-hidden rounded-3xl border border-brand-border bg-brand-card p-6 text-left shadow-xl shadow-brand-text/5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-2xl"
         @click="handleOperationCardClick(index)"
       >
         <div
@@ -688,7 +684,7 @@ onBeforeUnmount(() => {
         </div>
         <h3 class="text-xl font-black text-brand-text">{{ item.title }}</h3>
         <p class="mt-3 text-sm leading-7 text-brand-text-secondary">{{ item.desc }}</p>
-      </article>
+      </button>
     </div>
   </section>
 </template>

@@ -43,14 +43,11 @@ const scheduleFallback = () => {
   fallbackTimer = window.setTimeout(useFallback, 6000)
 }
 
-watch(
-  () => props.src,
-  (source) => {
-    attemptedFallback.value = false
-    resolvedSource.value = getInitialSource(source)
-    scheduleFallback()
-  },
-)
+watch([() => props.src, fallbackSource], ([source]) => {
+  attemptedFallback.value = false
+  resolvedSource.value = getInitialSource(source)
+  scheduleFallback()
+})
 
 onMounted(scheduleFallback)
 onBeforeUnmount(clearFallbackTimer)
